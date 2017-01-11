@@ -29,7 +29,7 @@ column <- "RP" #or "HILIC"
 #Run XCMSfunction----
 
 setwd(functionpath)
-source("XCMS_function.R")
+source("XCMS.function.R")
 XCMSList <- xcmsfunction(sampleset, extractiontype)
 xset3 <- XCMSList[[1]]
 xset.allpeaks <- XCMSList[[2]]
@@ -51,7 +51,7 @@ qcplotter(xset3, sampleset, xset.filtered, MFs)
 
 
 setwd("~/Desktop/Google Drive/3. Ingalls Lab/Compound info")
-source("TargetCompounds_function.R")
+source("TargetCompounds.function.R")
 setwd(outputpath)
 TCList <- mfmatch(X,Y=xset.allpeaks, column, 5,0.4)
 Matches <- TCList$matches 
@@ -63,7 +63,7 @@ Target.Compounds <- TCList$tcl
 #Run Camera_Function----
 
 setwd(functionpath)
-source("Camera_Function_191216.R")
+source("CAMERA.function.R")
 CAMERAlist <- camera (xset3, Polarity ="positive", PPM = 5)
 xset.annot <- CAMERAlist[[1]]
 xsaFA <- CAMERAlist[[2]]
@@ -73,7 +73,7 @@ xsaFA <- CAMERAlist[[2]]
 #Load in CAMERA xsAnnotate object and Peaklist
 
 setwd(functionpath)
-source("CAMERA_object_postprocessing_function.R")
+source("CAMERApostprocessing.function.R")
 IonList <- camerapostprocess(xsaFA, xset.annot)
 OtherIons <- IonList[[3]]
 
@@ -84,7 +84,7 @@ OtherIons <- IonList[[3]]
 
 
 setwd(functionpath)
-source("NeutralMassList_function.R")
+source("NeutralMassList.function.R")
 NMLists <- NMLfunction (OtherIons, xset.filtered, sig.groupnames)
 UniqueNML <- NMLists[[1]]
 UniqueHypNM <- NMLists[[3]]
