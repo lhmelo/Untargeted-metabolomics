@@ -50,7 +50,7 @@ qcplotter(xset3, sampleset, xset.filtered, MFs)
 #these can be targeted compounds or standards.  Right now code is set up to accomodate RP or HILIC targetted compounds
 
 
-setwd("~/Desktop/Google Drive/3. Ingalls Lab/Compound info")
+setwd(functionpath)
 source("TargetCompounds.function.R")
 setwd(outputpath)
 TCList <- mfmatch(X,Y=xset.allpeaks, column, 5,0.4)
