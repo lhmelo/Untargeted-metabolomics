@@ -1,21 +1,9 @@
-# camera function --------------------------
-# This function processes an xcmsSet object using CAMERA to look for 
-# other ions that could arise from the same mass feature. Input is an
-# xcmsSet object (xset) and the ionization mode as "positive" or "negative".
+# CAMERA post-processing function --------------------------
+# This function processes a CAMERA generated peak table (*.annot) and organizes neutral mass and isotope information.  
 # Input is:
-#       1. a grouped xcmsSet object (xset)
-#       2. the ionization mode as "Epos", "Eneg", "Apos", or "Aneg" (Mode)
-#       3. the resolution in ppm to be used for matching adducts
-#       and isotopes (PPM); defaults to 15
-#       4. Since CAMERA looks at the correlation of chromatograms between ions
-#       as part of how it determines which ions are, in fact, adducts or isotopes,
-#       the p value cutoff required. True adducts and ions should correlate 
-#       quite well in the raw data, so the default is 0.0001. (PVal)
-# Output is a named list containing:
-#       1. the CAMERA object (root part of the name is whatever the input 
-#       xcmsSet object was called, suffix is .xsa)
+#       1. a CAMERA object (xsa; most likely xsaFA)
 #       2. a data.frame of the output from CAMERA (.annot). There will be one row for
-#       every ion in the original data after the reference ions were removed. 
+#       every ion in the original data 
 #       Columns:
 #             a. the mass feature name (MassFeature), 
 #             b. the m/z (mz), 
@@ -28,6 +16,10 @@
 #             have m/z that would actually make them the same compound, though, so
 #             think of grouping the ions into pseudospectra as simply the first 
 #             step in making a hypothesis about which ions might be related. 
+# Output is a named list containing:
+#       1. the same CAMERA object used as input (root part of the name is whatever the input 
+#       xcmsSet object was called, suffix is .xsa)
+#       2. a data.frame of the output from CAMERA (.annot). 
 #       3. a data.frame (suffix is .otherions) where each row is an ion that had 
 #       at least one other potentially related ion, so >= 1 other isotope or 
 #       adduct. The columns are:
@@ -41,18 +33,6 @@
 #             h. and a group number where other ions with the same number
 #             are potentially isotopes of this one (IsoGroup). 
 
-
-# Nota bene: The xcmsSet object must have already had the group() function
-# applied to it or this will not work. That's something inherent in the 
-# CAMERA package, not something I implemented. The problem with that is that
-# you then have to run this on your ENTIRE dataset, which will be time 
-# consuming and RAM intensive if you've got very many samples. You can
-# always subset your xcmsSet object to contain only a handful of samples, but
-# then you have to redo the xcms::group() function and then, once you've
-# run that function, you'll have to figure out which ions correspond to which
-# in the full dataset.   - Laura
-  
-  #Load in CAMERA xsAnnotate object and Peaklist from previous run----
   
   camerapostprocess <- function(xset, xset.annot) {
   # Making a column with the mass feature name.
