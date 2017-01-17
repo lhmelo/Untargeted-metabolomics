@@ -30,7 +30,7 @@ column <- "RP" #or "HILIC"
 
 setwd(functionpath)
 source("XCMS.function.R")
-XCMSList <- xcmsfunction(sampleset, extractiontype)
+XCMSList <- xcmsfunction(extractiontype, excludedsamples)
 xset3 <- XCMSList[[1]]
 xset.allpeaks <- XCMSList[[2]]
 
