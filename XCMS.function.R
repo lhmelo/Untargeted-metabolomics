@@ -25,7 +25,7 @@
 # 2. a data.frame containing a list of peaks that have been
 # aligned, RT corrected, realigned, and recursively filled (xset.allpeaks)
 
-xcmsfunction <- function(extractiontype) {
+xcmsfunction <- function(extractiontype, excludedsamples=NULL) {
 
 library(xcms)
 library(RANN)
@@ -49,6 +49,11 @@ Samples <- list.files( getwd(), pattern=".mzXML", full.names=F,
                       recursive = TRUE) # looking for appropriate files
 
 sampleset <- Samples[grepl(extractiontype, Samples)]
+
+if (is.character(excludedsamples)) {
+  sampleset <- sampleset[!grepl(excludedsamples, sampleset)]
+  } 
+
 print(sampleset)
 
 xset <- xcmsSet(
