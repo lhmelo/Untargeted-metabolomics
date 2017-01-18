@@ -16,9 +16,9 @@ MinFrac <- 0.2 #Set to zero since samples are binned.  Set to value if samples a
 BW <- 3 #Ignoring IPO's suggestions on this guy 
 MzWid <- 0.00307 #between injection resolution
 MAX <- 52.8
-Missing <- 10 #Optomize these
+Missing <- 12 # the number of missing samples to allow in RT correction groups
 Extra <- 10 #Optomize these
-Minsamp <- 10
+Minsamp <- 3 #the minimum # of samples required to have that mass feature
 #GapInit <- 0.78
 #GapExtend <- 2.688
 
@@ -34,7 +34,10 @@ XCMSList <- xcmsfunction(extractiontype, excludedsamples)
 xset3 <- XCMSList[[1]]
 xset.allpeaks <- XCMSList[[2]]
 
-MFList <- mfmaker_ANOVA(xset.allpeaks, extractiontype, pvalue)
+#*******THIS FUNCTION MUST BE CUSTOMIZED FOR EACH DATA SET!!!!!!!******
+setwd(functionpath)
+source("mfmakerANOVA_VibrioEdition.function.R")
+MFList <- mfmaker_ANOVA(xset.allpeaks, extractiontype, pvalue, includedsamples)
 MFs <- MFList$mfs
 sig.groupnames <- MFList$sig
 bottom.fifty <- MFList$b50
