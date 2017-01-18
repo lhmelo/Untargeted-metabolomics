@@ -3,9 +3,8 @@
 #last update: "January 13, 2017"
 
 # This script contains several major functions (and a couple of embedded functions), which are # described under their respective headings:
-# xcmsfunction (extractiontype)
-# mfmaker_ANOVA (xset.allpeaks, extractiontype, pvalue)
-# samplesetmaker (extractiontype)
+# xcmsfunction (extractiontype, excludedsamples)
+# samplesetmaker (extractiontype, excludedsamples)
 # qcplotter (xset, sampleset, xset.filtered, MFs)
 # 
 # 
