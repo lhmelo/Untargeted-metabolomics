@@ -9,7 +9,7 @@
 #1. a processed xset object from xcmsfunction.  Should be called xset3.
 #
 #Output:
-#1. A list (CAMERAlist) containing [[1]] a processed peak list containing information about adducts, isotopes and neutral masses and [[2]], a CAMERA object (xsaFA).
+#1. A list (CAMERAlist) containing [[1]] a processed peak list containing information about adducts, isotopes and neutral masses (xset.annot) and [[2]], a CAMERA object (xsaFA).
 
 #Mode is "positive" or "negative". Default is positive
 
