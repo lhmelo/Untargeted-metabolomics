@@ -113,7 +113,7 @@ xset2 <- group(
   max=MAX)
 
 
-xset.unfilled <- peakTable(xset)
+xset.unfilled <- peakTable(xset2)
 
 setwd(outputpath)
 write.csv(xset.unfilled, file=paste(extractiontype, "Unfilled_peaks.csv", sep="."))
