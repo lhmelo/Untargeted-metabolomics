@@ -25,12 +25,18 @@ Minsamp <- 3 #the minimum # of samples required to have that mass feature
 extractiontype <- "Aq" #or "DCM"
 pvalue <- 0.05
 column <- "RP" #or "HILIC"
+excludedsamples <- "DSS3|SA11" #xcmsfunction and samplesetmaker
+includedsamples <- "SWT|Glu|groupname" #argument to mfmaker
+
+#Build sampleset----
+
+sampleset <- samplesetmaker(extractiontype, excludedsamples)
 
 #Run XCMSfunction----
 
 setwd(functionpath)
 source("XCMS.function.R")
-XCMSList <- xcmsfunction(extractiontype, excludedsamples)
+XCMSList <- xcmsfunction(sampleset, extractiontype, excludedsamples)
 xset3 <- XCMSList[[1]]
 xset.allpeaks <- XCMSList[[2]]
 
@@ -42,8 +48,6 @@ MFs <- MFList$mfs
 sig.groupnames <- MFList$sig
 bottom.fifty <- MFList$b50
 xset.filtered <- MFList$filtered
-
-sampleset <- samplesetmaker(extractiontype)
 
 qcplotter(xset3, sampleset, xset.filtered, MFs)
 
@@ -64,7 +68,8 @@ Target.Compounds <- TCList$tcl
 
 
 #Run Camera_Function----
-
+#Calculate adducts and isotopes for mass features and calculate neutral mass for ions with two or more adducts
+#
 setwd(functionpath)
 source("CAMERA.function.R")
 CAMERAlist <- camera (xset3, Polarity ="positive", PPM = 5)
@@ -72,7 +77,6 @@ xset.annot <- CAMERAlist[[1]]
 xsaFA <- CAMERAlist[[2]]
 
 #Run Camera post-processing----
-#Calculate adducts and isotopes for mass features and calculate neutral mass for ions with two or more adducts
 #Load in CAMERA xsAnnotate object and Peaklist
 
 setwd(functionpath)
