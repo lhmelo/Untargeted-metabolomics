@@ -95,6 +95,8 @@ source("NeutralMassList.function.R")
 NMLists <- NMLfunction (OtherIons, xset.filtered, sig.groupnames)
 UniqueNML <- NMLists[[1]]
 UniqueHypNM <- NMLists[[3]]
+NeutralMassList <- NMLists[[4]]
 setwd(outputpath)
+write.csv(NeutralMassList, file="NeutralMassList.csv")
 write.csv(UniqueHypNM, file="HypNM_Export.csv")
 write.csv(UniqueNML, file="NML_Export.csv")
