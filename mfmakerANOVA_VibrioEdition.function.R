@@ -20,6 +20,8 @@ mfmaker_ANOVA <- function(xset.allpeaks, extractiontype, pvalue, includedsamples
   
   #xset.allpeaks$AveBlank<- (xset.allpeaks$X160806_Blk_8.3_FilterBlk + 
   #                                xset.allpeaks$X160806_Smp_BAB)/2
+ names <- colnames(xset.allpeaks)
+ 
   xset.allpeaks$AveSmp<- rowMeans(xset.allpeaks[, names[grepl("Smp", names)]])
   
   
