@@ -64,6 +64,8 @@ TCList <- mfmatch(X,Y=xset.allpeaks, column, 5,0.4)
 Matches <- TCList$matches 
 Target.Compound.Areas <- TCList$tca
 Target.Compounds <- TCList$tcl
+write.csv(Target.Compound.Areas, file=paste(extractiontype,"TargetCompounds.csv", sep="."))
+
 
 
 
