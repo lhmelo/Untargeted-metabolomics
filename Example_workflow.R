@@ -76,6 +76,7 @@ source("CAMERA.function.R")
 CAMERAlist <- camera (xset3, Polarity ="positive", PPM = 5)
 xset.annot <- CAMERAlist[[1]]
 xsaFA <- CAMERAlist[[2]]
+setwd(functionpath)
 save(CAMERAlist, file=paste(extractiontype, "CAMERAlist.RData", sep="."))
 
 #Run Camera post-processing----
@@ -85,6 +86,7 @@ setwd(functionpath)
 source("CAMERApostprocessing.function.R")
 IonList <- camerapostprocess(xsaFA, xset.annot)
 OtherIons <- IonList[[3]]
+setwd(functionpath)
 write.csv(OtherIons, file=paste(extractiontype, "OtherIons.csv", sep="."))
 
 #Neutral Mass List function----
