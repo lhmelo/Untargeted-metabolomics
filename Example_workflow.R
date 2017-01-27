@@ -68,7 +68,6 @@ Target.Compounds <- TCList$tcl
 write.csv(Target.Compound.Areas, file=paste(extractiontype,"TargetCompounds.csv", sep="."))
 
 
-
 #Run Camera_Function----
 #Calculate adducts and isotopes for mass features and calculate neutral mass for ions with two or more adducts
 #
