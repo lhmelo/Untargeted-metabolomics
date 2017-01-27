@@ -9,13 +9,9 @@
 #       4. RT
 #       
 # List of target compounds should be data.frame X:
-# "Cyano_Aq_Targetted_Standards.csv"
-# "Cyano_DCM_Targetted_Standards.csv"
-# "HILIC_Targetted_Standards.csv"
-# "Cyano_Labelled_Standards.csv"
-# "HILIC_Labelled_Standards.csv"
+# As of 27-01-17 using "MRM_Methods_Table.csv" for Cyano and HILIC targetted compounds and labelled standards
 # 
-# xsAq.allpeaks object from XCMS should be data.frame Y.
+# xsAq.allpeaks object from XCMS output should be data.frame Y.
 # 
 # Data.frame X must include the following columns:
 #       
@@ -29,12 +25,7 @@
 # with other settings for PPM and RTRange:
 # mfmatch(Data1, Data2, PPM = 10, RTRange = 0.3)
 # column is either "RP" or "HILIC"
-#
-# !!! Important: If one of the data.frames includes compounds whose RT you 
-# don't know, make that one Y. For somewhat arcane reasons, this works 
-# much better. !!! 
-# If one of the datasets is much longer than the other, as long as it doesn't 
-# have any missing values for RT, make the shorter one X. It will go faster.
+
 
 
 mfmatch <- function(X, Y, column, PPM = 5, RTRange = 0.2){
@@ -43,7 +34,7 @@ mfmatch <- function(X, Y, column, PPM = 5, RTRange = 0.2){
   require(readr)
   
  current.path <- getwd()
- setwd("~/Desktop/Google Drive/3. Ingalls Lab/Compound info")
+ setwd(targetcompoundpath)
  data <- read_csv("MRM_Methods_Table.csv")
 
  Target.Compounds <- data[which(data[,'Column'] == column), c("Compound.Name", "mz", "RT")]
