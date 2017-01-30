@@ -61,7 +61,7 @@ mfmaker_ANOVA <- function(pvalue){
   
   
   setwd(ResultsDIR)
-  write.csv(xset.filtered, file=paste(Fraction, "xset.filtered", sep="."))
+  write.csv(xset.filtered, file=paste(Fraction, "xset.filtered.csv", sep="."))
   
   #Pull out top 50 most differentially expressed peaks
   sig.groupnames <-
