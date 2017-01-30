@@ -1,0 +1,243 @@
+#title: "XCMS.function"
+#author: "Laura Hmelo"
+#last update: "January 27, 2017"
+#
+#This is a version of XCMS.function.R which merges in features of Katherine Heal's XCMS function.  Namely, it brings in capability to run XCMS on all four metabolite fractions in a looped fraction.  It removes parameter definitions from heading of Example_workflow to Params.csv.
+
+# This script contains several major functions (and a couple of embedded functions), which are # described under their respective headings:
+# xcmsfunction (extractiontype, excludedsamples)
+# samplesetmaker (extractiontype, excludedsamples)
+# qcplotter (xset, sampleset, xset.filtered, MFs)
+# 
+# 
+# xcmsfunction----
+# This script uses XCMS to generate a list of peaks that have been
+# aligned, RT corrected, realigned, and recursively filled. 
+# 
+# Before running the function:
+# 1. Define ResultsDIR and DataDIR
+# 2. Define extractiontype in function call
+# 
+# Input:
+# 1. .mzXML sample files unbinned in a single folder
+# 
+# Output is a list containing:
+# 1. a processed xcmsSet object (xset3)
+# 2. a data.frame containing a list of peaks that have been
+# aligned, RT corrected, realigned, and recursively filled (xset.allpeaks)
+
+xcmsfunction <- function(DatFiles) {
+
+library(xcms)
+library(RANN)
+library(Biobase)
+library(seqinr)
+library(plyr)
+library(lubridate)
+library(timeDate)
+library(ggplot2)
+library(stringr)
+require(reshape2)
+require(dplyr)
+  
+
+
+# Getting samples and peak picking -------------------------------------------------------
+
+setwd(DataDIR)
+
+xset <- xcmsSet(
+  DatFiles, 
+  method = "centWave",  
+  ppm= Params["PPM", Fraction], 
+  peakwidth= c(Params["PEAKWIDTHlow", Fraction], Params["PEAKWIDTHhigh", Fraction]),
+  snthresh= Params["SNthresh", Fraction], 
+  mzCenterFun="apex", 
+  prefilter= c(Params["PREFILTERlow", Fraction], Params["PREFILTERhigh", Fraction]),
+  integrate = 1, 
+  fitgauss= TRUE)
+
+
+print("peak picking complete")
+
+# Initial peak alignment -------------------------------------------------------
+
+xset <- group(
+  xset, 
+  method="density", 
+  bw= Params["BW", Fraction], 
+  minfrac= Params["MINFRAC", Fraction],
+  minsamp= Params["MINSAMP", Fraction], 
+  mzwid= Params["MZWID", Fraction], 
+  max= Params["MAX", Fraction])
+
+setwd(ResultsDIR)
+save(xset, file=paste(Fraction, "xset.RData", sep="."))
+
+print(paste(Fraction,"Initial peak alignment complete", sep=" "))
+
+# RT correction and grouping (of some iterations) -------------------------------------------------------
+for (k in 1:Params["RTITs", Fraction]){
+
+xset2 <- retcor(
+  xset, 
+  method = "peakgroups",
+  missing = Params["MISSING", Fraction],
+  extra = Params["EXTRA", Fraction], 
+  smooth = "loess",
+  family = "symmetric", 
+  plottype = NULL
+)
+
+
+print(paste (Fraction, "RT correction complete", sep=" "))
+
+# Peak align the RT-corrected data
+
+xset2 <- group(
+  xset2, 
+  method="density", 
+  minfrac= Params["MINFRAC", Fraction],
+  minsamp= Params["MINSAMP", Fraction],
+  mzwid= Params["MZWID", Fraction], 
+  max= Params["MAX", Fraction],
+  bw= Params["BW", Fraction])
+
+}
+
+xset.unfilled <- peakTable(xset2)
+
+setwd(ResultsDIR)
+write.csv(xset.unfilled, file=paste(Fraction, "Unfilled_peaks.csv", sep="."))
+save(xset2, file=paste(Fraction, "xset2.RData", sep="."))
+
+print(paste(Fraction, "additional peak alignment done", sep=""))
+
+# Recursive peak filling -------------------------------------------------------
+
+xset3 <- fillPeaks(xset)
+
+setwd(ResultsDIR)
+save(xset3, file=paste(Fraction, "xset3.RData", sep="."))
+
+print(paste(Fraction, "recursive peak filling is done", sep=" "))
+
+#xset3 is the input file for CAMERA or diffreport. 
+
+# Generate a data.frame with all the peaks----
+
+xset.allpeaks <- peakTable(xset3)
+xset.allpeaks$MassFeature <- paste("I", round((xset.allpeaks$mz),digits=4), 
+                                       "R", round( xset.allpeaks$rt/60, digits=2), sep="")
+xset.allpeaks$groupname <- groupnames(xset3)
+xset.allpeaks$RT <- xset.allpeaks$rt/60
+
+setwd(ResultsDIR)
+write.csv(xset.allpeaks, file=paste(Fraction, "Allpeaks.table","csv",sep="."))
+
+print(paste(Fraction, "allpeaks data table is saved", sep=" "))
+
+#XCMSlist <- list(xset3, xset.allpeaks)
+#return(invisible(XCMSlist))
+
+}
+
+# samplesetmaker----
+#This function defines a group of samples based on the extraction phase. This function is used to define the sampleset variable used in the subsequent function, qcplotter.
+
+samplesetmaker <- function(extractiontype, excludedsamples=NULL){
+  
+  setwd(DataDIR)
+  
+  Samples <- list.files( getwd(), pattern=".mzXML", full.names=F, 
+                         recursive = TRUE) # looking for appropriate files
+  
+  sampleset <- Samples[grepl(extractiontype, Samples)]
+  
+  if (is.character(excludedsamples)) {
+    sampleset <- sampleset[!grepl(excludedsamples, sampleset)]
+  } 
+  
+  print(sampleset)
+  
+  return(sampleset)
+}
+
+
+#qcplotter----
+#This function plots EICs for mass features designated in MFs.  
+#
+#Inputs:
+#1. a processed xcmsset object (xset, probably xset3)
+#2. xset.filtered, generated by mfmaker
+#3. MFs, generated by mfmaker
+#4. sampleset, generated by function samplesetmaker
+#
+#Outputs:
+#1. a pdf file containing raw and corrected EICs for mass features designated in list, MF.
+
+qcplotter <- function(xset, sampleset, xset.filtered, MFs){
+
+EIC.uncorrected <- list()
+EIC.corrected <- list()
+
+# This next step will take some time to process, so don't expect instant results. 
+setwd(DataDIR)
+RandSamp <- round(runif(1, min = 1, max = length(sampleset)))
+
+#for (i in 1:length(MFs)){   
+#  EIC.uncorrected[[i]] <- getEIC(xset, rt="raw", groupidx=MFs[i], sampleidx=Aq.Samples)
+#  EIC.corrected[[i]] <- getEIC(xset, rt="corrected", groupidx=MFs[i], sampleidx=Aq.Samples)
+#}
+
+for (i in 1:length(MFs)){   
+  EIC.uncorrected[[i]] <- getEIC(xset, rt="raw", groupidx=MFs[i])
+  EIC.corrected[[i]] <- getEIC(xset, rt="corrected", groupidx=MFs[i])
+}
+
+
+
+ColRainbow <- colorRampPalette(c("green", "blue", "purple")) 
+MyColors <- c(ColRainbow(RandSamp-1), "red")
+
+#setwd(DataDIR)
+
+#
+LastSamp <- sampleset[RandSamp[length(RandSamp)]]
+
+xset.raw <- xcmsRaw(LastSamp, profstep=0.01, profmethod="bin")
+
+
+setwd(ResultsDIR)
+pdf(paste(Sys.Date(), extractiontype, "xset_QC.pdf", sep = "."), 8.5,11)
+
+par(mfrow=c(4,3), mar=c(3,3,3,0.5)) 
+for(i in 1:length(MFs)){
+  plot(EIC.uncorrected[[i]], xset, groupidx=1, rtrange=60, col=MyColors, main=MFs[i])
+  mtext(paste(i, xset.filtered$MassFeature[xset.filtered$groupname == MFs[i]]), 
+        side=3, line=-1, adj=0, padj=0, cex=0.8)
+  plot(EIC.corrected[[i]], xset, groupidx=1, rtrange=60, col=MyColors)
+  RT <- xset.filtered$rt[xset.filtered$groupname == MFs[i]] 
+  RTRange <- c(RT-30, RT+30)
+  mz <- xset.filtered$mz[xset.filtered$groupname == MFs[i]] 
+  mzRange <- c(mz-0.02, mz+0.02)
+  mzRange.poly.low <- mz- mz*(0.5*PPM)/1e6
+  mzRange.poly.up <- mz*(0.5*PPM)/1e6 + mz
+  plotRaw(xset.raw, mzrange=mzRange, rtrange=RTRange, log=FALSE) 
+  abline(h=mz, lty=2, col="gray35")
+  #mtext(paste("abund =", round(xset.filtered[
+  # xset.filtered$groupname == MFs[i]])), 
+  #SampCol[RandSamp[length(RandSamp)]]], digits=0)), 
+  #   side=3, line=-1, adj=0, padj=0, cex=0.8)
+  polygon(c(RTRange[2], RTRange[1], RTRange[1], RTRange[2]), 
+          c(mzRange.poly.up, mzRange.poly.up,
+            mzRange.poly.low, mzRange.poly.low), 
+          col=col2alpha("blue", alpha=0.1), border=NA)
+  abline(v=RT, lty=2, col="gray35")
+}
+dev.off()
+
+return("pdf saved")
+}
+
+
