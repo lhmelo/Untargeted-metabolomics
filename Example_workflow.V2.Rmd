@@ -18,16 +18,17 @@ targetcompoundpath <- "~/Desktop/Google Drive/3. Ingalls Lab/Compound info" #thi
 
 #Set parameters
 ```{r Set parameters and define groups}
-Experiment <- "Vesicles_January_2017"
-Params <- read.csv(ExpDIR,  row.names=1)
+#Experiment <- "Vesicles_January_2017"
+setwd(ExpDIR)
+Params <- read.csv("Params.csv",  row.names=1)
 
 FractionList <- c("HILICNeg", "HILICPos", "CyanoAq", "CyanoDCM")
 
-extractiontype <- "Aq" #or "DCM"
+#extractiontype <- "Aq" #or "DCM"
 pvalue <- 0.05
 column <- "RP" #or "HILIC"
-excludedsamples <- "DSS3|SA11" #xcmsfunction and samplesetmaker
-includedsamples <- "9313|9312|groupname" #argument to mfmaker
+#excludedsamples <- "DSS3|SA11" #xcmsfunction and samplesetmaker
+#includedsamples <- "9313|9312|groupname" #argument to mfmaker
 
 #Pick 2 IDs that will work to call Biological replicates to compared for the QC step
 Treat1ID <- "9313"
@@ -51,12 +52,6 @@ Dirs <- data.frame(FractionList, FractionDIR, ResultsDIR, DataDIR)
 rownames(Dirs) <- Dirs$FractionList
 ```
 
-#Build sampleset
-```{r Build sampleset}
-
-#sampleset <- samplesetmaker(extractiontype, excludedsamples)
-```
-
 #Run XCMSfunction
 
 ```{r Run XCMSfunction on all fractions specified in FractionList}
@@ -64,7 +59,7 @@ setwd(functionDIR)
 source("XCMS.V2.function.R")
 
 #run XCMS
-xcmsfunction(DatFiles)
+xcmsfunction()
 #XCMSList <- xcmsfunction(DatFiles)
 #xset3 <- XCMSList[[1]]
 #xset.allpeaks <- XCMSList[[2]]
@@ -75,7 +70,7 @@ xcmsfunction(DatFiles)
 
 ```{r}
 setwd(functionDIR)
-source("mfmakerANOVA_VibrioEdition.function.R")
+source("mfmakerANOVA_Vesicles.function.R")
 MFList <- mfmaker_ANOVA(xset.allpeaks, extractiontype, pvalue, includedsamples)
 MFs <- MFList$mfs
 sig.groupnames <- MFList$sig
@@ -84,7 +79,7 @@ xset.filtered <- MFList$filtered
 
 setwd(functionDIR)
 source("qcplotter.V2.function.R")
-qcplotter(xset3, sampleset, xset.filtered, MFs)
+qcplotter()
 
 ```
 
@@ -108,12 +103,12 @@ write.csv(Target.Compound.Areas, file=paste(extractiontype,"TargetCompounds.csv"
 #Calculate adducts and isotopes for mass features and calculate neutral mass for ions with two or more adducts
 #
 setwd(functionDIR)
-source("CAMERA.function.R")
-CAMERAlist <- camera (xset3, Polarity ="positive", PPM = 5)
-xset.annot <- CAMERAlist[[1]]
-xsaFA <- CAMERAlist[[2]]
-setwd(functionDIR)
-save(CAMERAlist, file=paste(extractiontype, "CAMERAlist.RData", sep="."))
+source("CAMERA.V2.function.R")
+CAMERAlist <- camera (PPM = 5)
+#xset.annot <- CAMERAlist[[1]]
+#xsaFA <- CAMERAlist[[2]]
+#setwd(functionDIR)
+#save(CAMERAlist, file=paste(extractiontype, "CAMERAlist.RData", sep="."))
 ```
 
 #Run Camera post-processing
