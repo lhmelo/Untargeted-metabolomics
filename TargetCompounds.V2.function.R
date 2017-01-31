@@ -43,6 +43,7 @@ mfmatch <- function(X, Y, column, PPM = 5, RTRange = 0.2){
  
  setwd(targetcompoundpath)
  data <- read.csv("TargetCompoundList.csv")
+ setwd(ResultsDIR)
  
  POLARITY <- as.character(Params["POLARITY", Fraction])
  COLUMN <- as.character(Params["COLUMN", Fraction])
@@ -50,15 +51,12 @@ mfmatch <- function(X, Y, column, PPM = 5, RTRange = 0.2){
  Target.Compounds <- data[which(data[,'Column'] == COLUMN  & data[,'polarity']==POLARITY ), c("Compound.Name", "mz", "RT", "Column", "polarity")]
  
  
- & data[,'Column']==POLARITY
- 
  Target.Compounds$mz <- as.numeric(Target.Compounds$mz)
  
 Target.Compounds <- Target.Compounds[complete.cases(Target.Compounds$mz),]
  
  Target.Compounds$MassFeature <- paste("I", round((Target.Compounds$mz),digits=4), 
                                        "R", round( Target.Compounds$RT, digits=2), sep="")
- setwd(current.path)
  
  
   X <- Target.Compounds
@@ -191,9 +189,14 @@ Target.Compounds <- Target.Compounds[complete.cases(Target.Compounds$mz),]
   
   #return(Matches)
   
- TCList <-
-    list(matches = Matches, tcl=Target.Compounds, tca = Target.Compound.Areas)
- return(invisible(TCList))
+# TCList <-
+    #list(matches = Matches, tcl=Target.Compounds, tca = Target.Compound.Areas)
+ #return(invisible(TCList))
+setwd(ResultsDIR) 
+write.csv(Matches, paste(Fraction, "Matches.csv", sep=".")) 
+write.csv(Target.Compounds, paste(Fraction, "TargetCompounds.csv", sep="."))  
+write.csv(Target.Compound.Areas, paste(Fraction, "TargetCompoundAreas.csv", sep="."))  
+ 
   }
 }
 
