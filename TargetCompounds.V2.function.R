@@ -45,15 +45,23 @@ mfmatch <- function(X, Y, column, PPM = 5, RTRange = 0.2){
  data <- read.csv("TargetCompoundList.csv")
  setwd(ResultsDIR)
  
- POLARITY <- as.character(Params["POLARITY", Fraction])
- COLUMN <- as.character(Params["COLUMN", Fraction])
+ POLARITY <- ifelse(Params["POLARITY", Fraction]==1, "positive",
+                    ifelse(Params["POLARITY", Fraction]==2, "positive",
+                           ifelse(Params["POLARITY", Fraction]==3, "positive",
+                                  ifelse(Params["POLARITY", Fraction]==4, "negative", NA))))
+ 
+ COLUMN <- ifelse(Params["POLARITY", Fraction]==1, "RP",
+                    ifelse(Params["POLARITY", Fraction]==2, "RP",
+                           ifelse(Params["POLARITY", Fraction]==3, "HILIC",
+                                  ifelse(Params["POLARITY", Fraction]==4, "HILIC", NA))))
+ 
 
  Target.Compounds <- data[which(data[,'Column'] == COLUMN  & data[,'polarity']==POLARITY ), c("Compound.Name", "mz", "RT", "Column", "polarity")]
  
  
  Target.Compounds$mz <- as.numeric(Target.Compounds$mz)
  
-Target.Compounds <- Target.Compounds[complete.cases(Target.Compounds$mz),]
+ Target.Compounds <- Target.Compounds[complete.cases(Target.Compounds$mz),]
  
  Target.Compounds$MassFeature <- paste("I", round((Target.Compounds$mz),digits=4), 
                                        "R", round( Target.Compounds$RT, digits=2), sep="")
