@@ -37,6 +37,7 @@ require(dplyr)
   
   for (j in 1:length(FractionList)){
     Fraction <- FractionList[j]
+    print(Fraction)
     DataDIR <- as.character(Dirs[Fraction, "DataDIR"])
     DatFiles <- list.files(DataDIR, recursive = TRUE, full.names = TRUE)
     #DatFiles <- DatFiles[!grepl("Icon", DatFiles)]
