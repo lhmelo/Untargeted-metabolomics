@@ -16,7 +16,7 @@ qcplotter <- function(){
   
   for (j in 1:length(FractionList)){
     Fraction <- FractionList[j]
-    
+    print(Fraction)
     DataDIR <- as.character(Dirs[Fraction, "DataDIR"])
     ResultsDIR <- as.character(Dirs[Fraction, "ResultsDIR"])
     
@@ -24,9 +24,10 @@ qcplotter <- function(){
     setwd(ResultsDIR)
     
     xset.filtered <- read.csv(paste(Fraction, "xset.filtered.csv", sep="."))
-    xset <- load(paste(Fraction, "xset3.RData", sep="."))
+    load(paste(Fraction, "xset3.RData", sep="."))
     MFs <- read.csv(paste(Fraction, "MFs.csv", sep="."))
-    
+    MFs <- MFs[,2]
+    MFs <- as.character(MFs) 
     
     setwd(DataDIR)
     AllFiles <- list.files( DataDIR, pattern=".mzXML", full.names=F, 
@@ -35,9 +36,9 @@ qcplotter <- function(){
     
     
     #Specify blanks, samples and pooled samples.
-    Samples <-names[grepl("Smp", AllSamples)]
-    Blanks <- names[grepl("Blk", AllSamples)]
-    Pooled <- names[grepl("Poo", AllSamples)]
+    Samples <-AllSamples[grepl("Smp", AllSamples)]
+    Blanks <- AllSamples[grepl("Blk", AllSamples)]
+    Pooled <- AllSamples[grepl("Poo", AllSamples)]
     
     #Specify treatment groups within samples
     
@@ -50,9 +51,10 @@ qcplotter <- function(){
     EIC.uncorrected <- list()
     EIC.corrected <- list()
     #MFs should be as.character. fix if there is an error.
+    print("Extracting EICs. This will take some time.")
     for (i in 1:length(MFs)){   
-      EIC.uncorrected[[i]] <- getEIC(xset, rt="raw", groupidx=MFs[i])
-      EIC.corrected[[i]] <- getEIC(xset, rt="corrected", groupidx=MFs[i])
+      EIC.uncorrected[[i]] <- getEIC(xset3, rt="raw", groupidx=MFs[i])
+      EIC.corrected[[i]] <- getEIC(xset3, rt="corrected", groupidx=MFs[i])
     }
     
     #Make a dataframe for appearance of the QC
@@ -82,7 +84,7 @@ qcplotter <- function(){
     
     par(mfrow=c(4,3), mar=c(3,3,3,0.5)) 
     for(i in 1:length(MFs)){
-      plot(EIC.uncorrected[[i]], xset, groupidx=1, rtrange=Params["RTPLOT", Fraction], col=MyColors, main=MFs[i], legtext = NULL)
+      plot(EIC.uncorrected[[i]], xset3, groupidx=1, rtrange=Params["RTPLOT", Fraction], col=MyColors, main=MFs[i], legtext = NULL)
       
       #mtext(paste(i, xset.filtered$MassFeature[xset.filtered$groupname == MFs[i]]), 
       #      side=3, line=-1, adj=0, padj=0, cex=0.8)
@@ -122,7 +124,7 @@ qcplotter <- function(){
         cex = 0.5
       )
       
-      plot(EIC.corrected[[i]], xset, groupidx=1, rtrange=Params["RTPLOT", Fraction], col=MyColors)
+      plot(EIC.corrected[[i]], xset3, groupidx=1, rtrange=Params["RTPLOT", Fraction], col=MyColors)
       mtext(paste("Corrected", i, 
                   Peaks.filtered$MassFeature[Peaks.filtered$groupname == MFs[i]]),
             side=3, line=-1, adj=0, padj=0, cex=0.8)
