@@ -13,7 +13,6 @@
 
 #Mode is "positive" or "negative". Default is positive
 
-setwd(outputpath)
 
 camera <- function(PPM = 5) {
 
@@ -22,12 +21,18 @@ library(snow)
   
   for (j in 1:length(FractionList)){
     Fraction <- FractionList[j]
-    
+    print(Fraction)
     ResultsDIR <- as.character(Dirs[Fraction, "ResultsDIR"])
     setwd(ResultsDIR)
-    xset <- load(paste(Fraction, "xset3.RData", sep="."))
+   load(paste(Fraction, "xset3.RData", sep="."))
+   
+   POLARITY <- ifelse(Params["POLARITY", Fraction]==1, "positive",
+                      ifelse(Params["POLARITY", Fraction]==2, "positive",
+                             ifelse(Params["POLARITY", Fraction]==3, "positive",
+                                    ifelse(Params["POLARITY", Fraction]==4, "negative", NA))))
   
-xsa <- xsAnnotate(xset)
+xsa <- xsAnnotate(xset3)
+print("xsAnnotate object created")
 
 xsaF <- groupFWHM(xsa, perfwhm = 0.6)
 
@@ -41,7 +46,7 @@ xsaFI <- findIsotopes(xsaC, ppm = PPM)
 #annotation of adducts and calculating hypothetical masses for the group; very slow step---- 
 #use xsaFA object to visualize EICs
 
-xsaFA <- findAdducts(xsaFI, ppm = PPM, polarity = Params["POLARITY", Fraction])
+xsaFA <- findAdducts(xsaFI, ppm = PPM, polarity = POLARITY)
 
 # Make a table of the annotated peaks-------
 xset.annot <- getPeaklist(xsaFA)
@@ -52,6 +57,7 @@ save(xset.annot, file=(paste(Fraction, "xset.annot", sep=".")))
 #CAMERAlist <- list(xset.annot, xsaFA)
 
 #return(invisible(CAMERAlist))
+print(paste("done", Fraction, sep=" "))
 
 }
 }
