@@ -12,7 +12,10 @@
 
 
 
-qcplotter <- function(){
+qcplotter <- function(PPM=5){
+  
+  library(xcms)
+  library(seqinr)
   
   for (j in 1:length(FractionList)){
     Fraction <- FractionList[j]
@@ -58,7 +61,7 @@ qcplotter <- function(){
     }
     
     #Make a dataframe for appearance of the QC
-    Colors <- rep("#FFFFFF03",length(AllSamples)) #White
+    Colors <- rep("#FFFFFF00",length(AllSamples)) #White
     QCAppear <- data.frame(AllSamples, Colors)
     QCAppear$Colors <- as.character(QCAppear$Colors)
     QCAppear[grepl(Treat1ID , AllSamples) , "Colors" ]<- "#FF0000FF" #Red with Alpha = 1
@@ -70,13 +73,13 @@ qcplotter <- function(){
     #ColRainbow <- colorRampPalette(c("green", "blue", "purple")) 
     #MyColors <- c(ColRainbow(RandSamp-1), "red")
     
-    #setwd(DataDIR)
+    setwd(DataDIR)
     
     #
-    RandSamp <- round(runif(1, min = 1, max = length(AllSamples)))
-    LastSamp <- sampleset[RandSamp[length(RandSamp)]]
+    RandSamp <- round(runif(1, min = 1, max = length(Samples)))
+    LastSamp <- Samples[RandSamp[length(RandSamp)]]
     
-    xset.raw <- xcmsRaw(LastSamp, profstep=0.01, profmethod="bin")
+    xset.raw <- xcmsRaw(paste(LastSamp, ".mzXML", sep = ""), profstep=0.01, profmethod="bin")
     
     
     setwd(ResultsDIR)
@@ -90,7 +93,7 @@ qcplotter <- function(){
       #      side=3, line=-1, adj=0, padj=0, cex=0.8)
       mtext(
         paste("Uncorrected", i,
-              Peaks.filtered$MassFeature[Peaks.filtered$groupname == MFs[i]]),
+              xset.filtered$MassFeature[xset.filtered$groupname == MFs[i]]),
         side = 3,
         line = -1,
         adj = 0,
@@ -121,12 +124,13 @@ qcplotter <- function(){
         line = -4,
         adj = 0,
         padj = 0,
-        cex = 0.5
+        cex = 0.5,
+        col = "#BEBEBE"
       )
       
       plot(EIC.corrected[[i]], xset3, groupidx=1, rtrange=Params["RTPLOT", Fraction], col=MyColors)
       mtext(paste("Corrected", i, 
-                  Peaks.filtered$MassFeature[Peaks.filtered$groupname == MFs[i]]),
+                  xset.filtered$MassFeature[xset.filtered$groupname == MFs[i]]),
             side=3, line=-1, adj=0, padj=0, cex=0.8)
       
   
@@ -136,6 +140,8 @@ qcplotter <- function(){
       mzRange <- c(mz-0.02, mz+0.02)
       mzRange.poly.low <- mz- mz*(0.5*PPM)/1e6
       mzRange.poly.up <- mz*(0.5*PPM)/1e6 + mz
+      
+      
       plotRaw(xset.raw, mzrange=mzRange, rtrange=RTRange, log=FALSE) 
       abline(h=mz, lty=2, col="gray35")
       #mtext(paste("abund =", round(xset.filtered[
@@ -148,8 +154,9 @@ qcplotter <- function(){
               col=col2alpha("blue", alpha=0.1), border=NA)
       abline(v=RT, lty=2, col="gray35")
     }
+  
     dev.off()
-    
-    return("pdf saved")
+    print(paste(Fraction, "pdf saved", sep=""))
   }
+  
 }
