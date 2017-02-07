@@ -28,18 +28,19 @@
 
 
 
-mfmatch <- function(X, Y, column, PPM = 5, RTRange = 0.2){
-  require(plyr)
+mfmatch <- function(PPM = 5, RTRange = 0.2){
+  require(dplyr)
   require(stringr)
   require(readr)
   
   for (j in 1:length(FractionList)){
     Fraction <- FractionList[j]
+    print(Fraction)
     
     ResultsDIR <- as.character(Dirs[Fraction, "ResultsDIR"])
       setwd(ResultsDIR)
-      xset.allpeaks <- load(paste(Fraction, "Allpeaks.table","csv",sep="."))
-  
+      xset.allpeaks <- read.csv(paste(Fraction, "Allpeaks.table","csv",sep="."))
+  Y <- xset.allpeaks
  
  setwd(targetcompoundpath)
  data <- read.csv("TargetCompoundList.csv")
