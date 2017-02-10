@@ -34,15 +34,16 @@
 #             are potentially isotopes of this one (IsoGroup). 
 
   
-  camerapostprocess <- function(xset, xset.annot) {
+  camerapostprocess <- function() {
     
     for (j in 1:length(FractionList)){
       Fraction <- FractionList[j]
       
       ResultsDIR <- as.character(Dirs[Fraction, "ResultsDIR"])
-      xset <- load(paste(Fraction, "xset3.RData", sep="."))
-      xset.annot <- load(paste(Fraction, "xset.annot", sep="."))
-      
+      #load(paste(Fraction, "xset3.RData", sep="."))
+      setwd(ResultsDIR)
+      load(paste(Fraction, "xset.annot", sep="."))
+    
   # Making a column with the mass feature name.
   xset.annot$MassFeature <- paste0("I", round((xset.annot$mz),
                                               digits = 4), "R", 
@@ -166,11 +167,9 @@
   
   OtherIons <- rbind.fill(AdList, IsoList)
   
-  IonList <- list(xset, xset.annot, OtherIons)
-  #names(IonList) <- c(
-  #  paste0(as.character(deparse(substitute(xset))),".xsa"),
- #   paste0(as.character(deparse(substitute(xset))),".annot"),
-  #  paste0(as.character(deparse(substitute(xset))),".otherions"))
+  setwd(ResultsDIR)
+  save(OtherIons, file=paste(Fraction, "OtherIons", sep=""))
+  print(paste(Fraction, "done", sep=" "))
   
-  return(invisible(IonList))
+}
 }
