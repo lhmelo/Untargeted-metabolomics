@@ -14,7 +14,7 @@
 # 4. xset.filtered
 
 
-mfmaker_ANOVA <- function(pvalue){
+mfmaker_ttest <- function(pvalue){
   
   #Basic filtering-----
   
@@ -61,7 +61,7 @@ mfmaker_ANOVA <- function(pvalue){
   
   
   setwd(ResultsDIR)
-  write.csv(xset.filtered, file=paste(Fraction, "xset.filtered.csv", sep="."))
+  write.csv(xset.filtered, file=paste(Fraction, "xset.filtered.csv", sep="."), row.names = FALSE)
   
   #Pull out top 50 most differentially expressed peaks
 
@@ -83,7 +83,7 @@ mfmaker_ANOVA <- function(pvalue){
   MFs <- bottom.fifty$groupname
   MFs<- as.character(MFs)
   setwd(ResultsDIR)
-  write.csv(MFs, paste(Fraction, "MFs.csv", sep="."))
+  write.csv(MFs, paste(Fraction, "MFs.csv", sep="."), row.names = FALSE)
   
   #List----
   
