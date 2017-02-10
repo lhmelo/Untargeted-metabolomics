@@ -19,3 +19,10 @@ NeutralMassListGenerator.R
 Mix4_FileNames.csv
 Mix4_Compounds.csv
 Compounds_Areas_RT_Mix4_TFoutput.csv
+mfmakerANOVA_Vesicles.function.R
+XCMS.function_23_01_16.R
+Aq.OtherIons.csv
+Rscripts.Rproj
+EIC viewer.R
+bin/
+doc/
