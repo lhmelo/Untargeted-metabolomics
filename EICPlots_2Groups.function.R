@@ -12,7 +12,7 @@
 #1. a pdf file containing raw and corrected EICs for mass features designated in list, MF.
 
 MFs<- MFs_9312high_short 
-Fraction <- "HILICNeg"
+Fraction <- "CyanoDCM"
 PDF_Title<- "MFs_9312_75MostDifferent"
 
 eicplotter <- function(MFs, Fraction, PDF_Title, PPM=5){
@@ -30,7 +30,7 @@ eicplotter <- function(MFs, Fraction, PDF_Title, PPM=5){
     
     xset.filtered <- read.csv(paste(Fraction, "xset.filtered.csv", sep="."))
     load(paste(Fraction, "xset3.RData", sep="."))
-    MFs <- read.csv(paste(Fraction, "MFs.csv", sep="."))
+
     #MFs <- MFs[,2]
     MFs <- as.character(MFs) 
     
@@ -44,6 +44,7 @@ eicplotter <- function(MFs, Fraction, PDF_Title, PPM=5){
     Samples <-AllSamples[grepl("Smp", AllSamples)]
     Blanks <- AllSamples[grepl("Blk", AllSamples)]
     Pooled <- AllSamples[grepl("Poo", AllSamples)]
+    sampleidx <- c(Samples, Blanks)
     
     #Specify treatment groups within samples
     
@@ -60,6 +61,8 @@ eicplotter <- function(MFs, Fraction, PDF_Title, PPM=5){
       EIC.corrected[[i]] <- getEIC(xset3, rt="corrected", groupidx=MFs[i])
     }
     
+    save(EIC.corrected, file = paste(Fraction, "EIC.corrected.RData", sep="."))
+    
     #Make a dataframe for appearance of the QC
     Colors <- rep("#FFFFFF00",length(AllSamples)) #White
     QCAppear <- data.frame(AllSamples, Colors)
@@ -71,9 +74,10 @@ eicplotter <- function(MFs, Fraction, PDF_Title, PPM=5){
 
     
     setwd(ResultsDIR)
-    pdf(paste(Sys.Date(), PDF_Title, sep = "."), 8.5,11)
+    pdf(paste(Sys.Date(), PDF_Title, "pdf", sep = "."), 8.5,11)
     
-    par(mfrow=c(4,3), mar=c(3,3,3,0.5)) 
+    #par(mfrow=c(4,3), mar=c(3,3,3,0.5)) 
+    par(mfrow=c(4,2), mar=c(3,3,3,0.5)) 
     for(i in 1:length(MFs)){
       plot(EIC.corrected[[i]], xset3, groupidx=1, rtrange=Params["RTPLOT", Fraction], col=MyColors, main=MFs[i], legtext = NULL)
       
@@ -116,7 +120,7 @@ eicplotter <- function(MFs, Fraction, PDF_Title, PPM=5){
         col = "#BEBEBE"
       )
       
-      plot(EIC.corrected[[i]], xset3, groupidx=1, sampleidx=Samples, rtrange=Params["RTPLOT", Fraction], col=MyColors)
+      plot(EIC.corrected[[i]], xset3, groupidx=1, sampleidx=sampleidx, rtrange=Params["RTPLOT", Fraction], col=MyColors, legtext = NULL)
      mtext(paste("Corrected", i, 
                xset.filtered$MassFeature[xset.filtered$groupname == MFs[i]]),
             side=3, line=-1, adj=0, padj=0, cex=0.8)
