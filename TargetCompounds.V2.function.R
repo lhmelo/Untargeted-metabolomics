@@ -29,22 +29,27 @@
 
 
 mfmatch <- function(PPM = 5, RTRange = 0.2){
+
+  require(plyr)
   require(dplyr)
   require(stringr)
   require(readr)
   
-  for (j in 1:length(FractionList)){
+  
+  for (j in 1:length(FractionList)) {
     Fraction <- FractionList[j]
     print(Fraction)
     
     ResultsDIR <- as.character(Dirs[Fraction, "ResultsDIR"])
-      setwd(ResultsDIR)
-      xset.allpeaks <- read.csv(paste(Fraction, "Allpeaks.table","csv",sep="."))
-  Y <- xset.allpeaks
- 
- setwd(targetcompoundpath)
- data <- read.csv("TargetCompoundList.csv")
- setwd(ResultsDIR)
+    setwd(ResultsDIR)
+    xset.allpeaks <-
+      read.csv(paste(Fraction, "Allpeaks.table", "csv", sep = "."))
+    Y <- xset.allpeaks
+    
+    
+    setwd(targetcompoundpath)
+    data <- read.csv("TargetCompoundList.csv", stringsAsFactors = FALSE)
+    setwd(ResultsDIR)
  
  POLARITY <- ifelse(Params["POLARITY", Fraction]==1, "positive",
                     ifelse(Params["POLARITY", Fraction]==2, "positive",
@@ -57,7 +62,7 @@ mfmatch <- function(PPM = 5, RTRange = 0.2){
                                   ifelse(Params["POLARITY", Fraction]==4, "HILIC", NA))))
  
 
- Target.Compounds <- data[which(data[,'Column'] == COLUMN  & data[,'polarity']==POLARITY ), c("Compound.Name", "mz", "RT", "Column", "polarity")]
+ Target.Compounds <- data[which(data[,'Column'] == COLUMN  & data[,'polarity']==POLARITY ), c("Compound.Name", "Compound.Type", "mz", "RT", "Column", "polarity")]
  
  
  Target.Compounds$mz <- as.numeric(Target.Compounds$mz)
@@ -70,7 +75,7 @@ mfmatch <- function(PPM = 5, RTRange = 0.2){
  
   X <- Target.Compounds
   
-  DF.X <- X[, c("Compound.Name", "MassFeature", "mz", "RT")]
+  DF.X <- X[, c("Compound.Name", "Compound.Type", "MassFeature", "mz", "RT")]
   DF.Y <- Y[, c("MassFeature", "mz", "RT")]
   
   DF.Y$MassFeature <- as.character(DF.Y$MassFeature)
@@ -127,6 +132,7 @@ mfmatch <- function(PPM = 5, RTRange = 0.2){
   DF.X$Compound.Name.X <- as.character(DF.X$Compound.Name.X)
   
   Matches <- data.frame(Compound.Name.X = DF.X$Compound.Name.X,
+                        Compound.Type = DF.X$Compound.Type.X,
                         MassFeature.X = DF.X$MassFeature.X,
                         MassFeature.Y = NA, 
                         mz.X = DF.X$mz.X, 
@@ -196,15 +202,19 @@ mfmatch <- function(PPM = 5, RTRange = 0.2){
   names(Target.Compound.Areas)[names(Target.Compound.Areas) == 'ppm'] <-
     'ppmdif'
   
+  TargetCompoundsAreas_condensed <- Target.Compound.Areas[complete.cases(Target.Compound.Areas$mz),]
+  
   #return(Matches)
   
 # TCList <-
     #list(matches = Matches, tcl=Target.Compounds, tca = Target.Compound.Areas)
  #return(invisible(TCList))
 setwd(ResultsDIR) 
-write.csv(Matches, paste(Fraction, "Matches.csv", sep=".")) 
-write.csv(Target.Compounds, paste(Fraction, "TargetCompounds.csv", sep="."))  
-write.csv(Target.Compound.Areas, paste(Fraction, "TargetCompoundAreas.csv", sep="."))  
+write.csv(Matches, paste(Fraction, "Matches.csv", sep="."), row.names = FALSE) 
+write.csv(Target.Compounds, paste(Fraction, "TargetCompounds.csv", sep="."), row.names = FALSE)  
+write.csv(Target.Compound.Areas, paste(Fraction, "TargetCompoundAreas.csv", sep="."), row.names=FALSE)  
+
+write.csv(TargetCompoundsAreas_condensed, paste(Fraction, "TargetCompoundAreasCondensed.csv", sep="."), row.names=FALSE)
  
   }
 }
