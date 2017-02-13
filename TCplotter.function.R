@@ -1,19 +1,22 @@
 # TCplotter function --------------------------------------------------
 
-# This function will take two data.frames, X and Y, and output a list containing two data frames. [[1]]  contains a listing which mass features match which in the other dataset. [[2]] contains peak areas accross all samples for the mass features listed in [[1]].
+# This function will take two data.frames, X and Y, compute a list of compounds in Y which match X, and then plot each compound individually. This script is configured so that only compounds of appropriate Polarity and Column will appear in plotted output.
 
 # Data.frame X must include the following columns:
 #       1. Compound.Name
-#       2. MassFeature
-#       3. mz
-#       4. RT
+#       2. Compound.Type
+#       3. MassFeature
+#       4. mz
+#       5. RT
 #       
 # List of target compounds should be data.frame X:
-# As of 27-01-17 using "MRM_Methods_Table.csv" for Cyano and HILIC targetted compounds and labelled standards
+# As of 27-02-12 using "TargetCompoundList.csv" for Cyano and HILIC targetted compounds and labelled internal standards.
 # 
 # xsAq.allpeaks object from XCMS output should be data.frame Y.
 # 
-# Data.frame X must include the following columns:
+# Requires eicplotter in EICPlots_2Groups_ISplotter.function. Within the eicplotter function, sampleidx is used to control which samples are plotted. Currently written to plot all samples, standards and blanks.
+# 
+# Data.frame Y must include the following columns:
 #       
 #       1. MassFeature
 #       2. mz
@@ -21,10 +24,10 @@
 # 
 # The default is that matches must be within 5 ppm and 0.2 min, but you can
 # change the defaults when you call the function, eg. with defaults:
-# mfmatch(Data1, Data2)
+# tcplotter()
 # with other settings for PPM and RTRange:
-# mfmatch(Data1, Data2, PPM = 10, RTRange = 0.3)
-# column is either "RP" or "HILIC"
+# tcplotter(PPM = 10, RTRange = 0.3)
+
 
 
 
@@ -206,23 +209,12 @@ tcplotter <- function(PPM = 5, RTRange = 0.2){
   
   TargetCompoundsAreas_condensed <- Target.Compound.Areas[,c(1:6,24)]
   
+  #MFs_alldata is input for eicplotter
   MFs_alldata <- Target.Compound.Areas[complete.cases(Target.Compound.Areas$groupname),]
   
   setwd(functionDIR)
   source("EICPlots_2Groups_ISplotter.function.R")
   eicplotter(MFs_alldata, Fraction, 5)
-  
-  #return(Matches)
-  
-# TCList <-
-    #list(matches = Matches, tcl=Target.Compounds, tca = Target.Compound.Areas)
- #return(invisible(TCList))
-#setwd(ResultsDIR) 
-#write.csv(Matches, paste(Fraction, "Matches.csv", sep="."), row.names = FALSE) 
-#write.csv(Target.Compounds, paste(Fraction, "TargetCompounds.csv", sep="."), row.names = FALSE)  
-#write.csv(Target.Compound.Areas, paste(Fraction, "TargetCompoundAreas.csv", sep="."), row.names=FALSE)  
-
-#write.csv(TargetCompoundsAreas_condensed, paste(Fraction, "TargetCompoundAreasCondensed.csv", sep="."), row.names=FALSE)
  
   }
 }
