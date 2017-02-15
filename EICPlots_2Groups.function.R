@@ -13,7 +13,7 @@
 
 MFs<- MFs_9312high_short 
 Fraction <- "CyanoDCM"
-PDF_Title<- "MFs_9312_75MostDifferent"
+PDF_Title<- "MFs_9312_75MostDifferent_tiled"
 
 eicplotter <- function(MFs, Fraction, PDF_Title, PPM=5){
   
@@ -77,9 +77,9 @@ eicplotter <- function(MFs, Fraction, PDF_Title, PPM=5){
     pdf(paste(Sys.Date(), PDF_Title, "pdf", sep = "."), 8.5,11)
     
     #par(mfrow=c(4,3), mar=c(3,3,3,0.5)) 
-    par(mfrow=c(4,2), mar=c(3,3,3,0.5)) 
+    par(mfrow=c(4,3), mar=c(3,3,3,0.5)) 
     for(i in 1:length(MFs)){
-      plot(EIC.corrected[[i]], xset3, groupidx=1, rtrange=Params["RTPLOT", Fraction], col=MyColors, main=MFs[i], legtext = NULL)
+      plot(EIC.corrected[[i]], xset3, groupidx=1, sampleidx=sampleidx, rtrange=Params["RTPLOT", Fraction], col=MyColors, main=MFs[i], legtext = NULL)
       
       #mtext(paste(i, xset.filtered$MassFeature[xset.filtered$groupname == MFs[i]]), 
       #      side=3, line=-1, adj=0, padj=0, cex=0.8)
@@ -120,10 +120,10 @@ eicplotter <- function(MFs, Fraction, PDF_Title, PPM=5){
         col = "#BEBEBE"
       )
       
-      plot(EIC.corrected[[i]], xset3, groupidx=1, sampleidx=sampleidx, rtrange=Params["RTPLOT", Fraction], col=MyColors, legtext = NULL)
-     mtext(paste("Corrected", i, 
-               xset.filtered$MassFeature[xset.filtered$groupname == MFs[i]]),
-            side=3, line=-1, adj=0, padj=0, cex=0.8)
+     # plot(EIC.corrected[[i]], xset3, groupidx=1, sampleidx=sampleidx, rtrange=Params["RTPLOT", Fraction], col=MyColors, legtext = NULL)
+    # mtext(paste("Corrected", i, 
+    #           xset.filtered$MassFeature[xset.filtered$groupname == MFs[i]]),
+     #       side=3, line=-1, adj=0, padj=0, cex=0.8)
       
     }
   
