@@ -54,9 +54,11 @@ eicplotter <- function(MFs_alldata, Fraction, PPM=5){
     EIC.corrected <- list()
     #MFs should be as.character. fix if there is an error.
     print("Extracting EICs. This will take some time.")
-    for (i in 1:length(MFs)){   
+    
+      for (i in 1:length(MFs)){   
       EIC.corrected[[i]] <- getEIC(xset3, rt="corrected", groupidx=MFs[i])
     }
+    
     
     save(EIC.corrected, file = paste(Fraction, "IS.EIC.corrected.RData", sep="."))
     
@@ -67,7 +69,7 @@ eicplotter <- function(MFs_alldata, Fraction, PPM=5){
     QCAppear[grepl(Treat1ID , AllSamples) , "Colors" ]<- "#FF0000FF" #Red with Alpha = 1
     QCAppear[grepl(Treat2ID , AllSamples) , "Colors" ] <- "#0000FFFF" #Blue with Alpha = 1
     QCAppear[grepl("_blk_" , AllSamples, ignore.case = TRUE) , "Colors"] <- "#BEBEBEFF"
-    CAppear[grepl("Std" , AllSamples, ignore.case = TRUE) , "Colors"] <- "#000000FF"
+    QCAppear[grepl("Std" , AllSamples, ignore.case = TRUE) , "Colors"] <- "#000000FF"
     MyColors <- QCAppear$Colors
 
     
