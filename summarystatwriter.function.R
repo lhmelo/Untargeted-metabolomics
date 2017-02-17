@@ -30,5 +30,8 @@ summarystatwriter <- function() {
     
     SummaryStats$percentDCM <- (SummaryStats$CyanoDCM/(SummaryStats$CyanoAq + SummaryStats$CyanoDCM))*100
     
+    setwd(ExpDIR)
+    write.csv(SummaryStats, file="SummaryStats.csv")
+    
   return(SummaryStats)
 }
