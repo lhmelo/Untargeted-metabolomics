@@ -1,4 +1,4 @@
-logplot <- function (){
+logplot <- function (sigcutoff = 0.05){
   
   for (j in 1:length(FractionList)) {
    #data <- NA
@@ -19,8 +19,8 @@ logplot <- function (){
     
     
     
-    Treat1ID <- "9313"
-    Treat2ID <- "9312"
+    #Treat1ID <- "9313"
+    #Treat2ID <- "9312"
     
     names <- colnames(data)
     Samples <- names[grepl("Smp", names)]
@@ -50,9 +50,10 @@ logplot <- function (){
               row.names = FALSE)
     
     #Are any of these features in common between the two strains?
-    #top9313_9312 <- intersect(top9212, top9313)
-    sig <- 0.05
-    sig.groupnames <- subset(data, data$pvalue < sig)
+    #top9313_9312 <- intersect(top9312$groupname, top9313$groupname)
+    #
+    
+    sig.groupnames <- subset(data, data$pvalue < sigcutoff)
     sig.groupnames$Ave9313 <- rowMeans(sig.groupnames[, Treat1])
     sig.groupnames$Ave9312 <- rowMeans(sig.groupnames[, Treat2])
     
