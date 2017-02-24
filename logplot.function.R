@@ -33,20 +33,20 @@ logplot <- function (sigcutoff = 0.05){
     #Which are the most abundant features?
     #Are any of these features in common between the two strains?
     
-    data$Ave9313 <- rowMeans(data[, Treat1])
-    data$Ave9312 <- rowMeans(data[, Treat2])
-    test <- data[with(data, order(-data$Ave9313)),]
+    data$AveTreat1 <- rowMeans(data[, Treat1])
+    data$AveTreat2 <- rowMeans(data[, Treat2])
+    #test <- data[with(data, order(-data$Ave9313)),]
     
-    top9313 <- data %>% arrange(desc(data$Ave9313)) %>% head(50)
+    topTreat1 <- data %>% arrange(desc(data$AveTreat1)) %>% head(50)
     #top9313 <- top_n(data, 50, data$Ave9313)
-    write.csv(top9313,
-              file = paste(Fraction, "top9313", "csv", sep = "."),
+    write.csv(topTreat1,
+              file = paste(Fraction, "top", Treat1ID, "csv", sep = "."),
               row.names = FALSE)
     #          
-    top9312 <- data %>% arrange(desc(data$Ave9312)) %>% head(50)         
+    topTreat2 <- data %>% arrange(desc(data$AveTreat2)) %>% head(50)         
     #top9312 <- top_n(data, 50, data$Ave9312)
-    write.csv(top9312,
-              file = paste(Fraction, "top9312", "csv", sep = "."),
+    write.csv(topTreat2,
+              file = paste(Fraction, "top", Treat2ID, "csv", sep = "."),
               row.names = FALSE)
     
     #Are any of these features in common between the two strains?
@@ -54,8 +54,8 @@ logplot <- function (sigcutoff = 0.05){
     #
     
     sig.groupnames <- subset(data, data$pvalue < sigcutoff)
-    sig.groupnames$Ave9313 <- rowMeans(sig.groupnames[, Treat1])
-    sig.groupnames$Ave9312 <- rowMeans(sig.groupnames[, Treat2])
+    sig.groupnames$AveTreat1 <- rowMeans(sig.groupnames[, Treat1])
+    sig.groupnames$AveTreat2 <- rowMeans(sig.groupnames[, Treat2])
     
     #building "logratio" which will represent enrichment of 9313 mass features as positive values and encrichment of 9312 mass features as negative values
     #
@@ -63,19 +63,19 @@ logplot <- function (sigcutoff = 0.05){
     
     sig.groupnames$logratio <-
       ifelse(
-        sig.groupnames$Ave9313 > sig.groupnames$Ave9312,
-        log10(sig.groupnames$Ave9313 / sig.groupnames$Ave9312),
+        sig.groupnames$AveTreat1 > sig.groupnames$AveTreat2,
+        log10(sig.groupnames$AveTreat1 / sig.groupnames$AveTreat2),
         ifelse(
-          sig.groupnames$Ave9313 < sig.groupnames$Ave9312,
+          sig.groupnames$AveTreat1 < sig.groupnames$AveTreat2,
           -(log10(
-            sig.groupnames$Ave9312 / sig.groupnames$Ave9313
+            sig.groupnames$AveTreat2 / sig.groupnames$AveTreat1
           )),
           "other"
         )
       )
     
     #replacing Inf with "4" in order to treat the column as numeric
-    sig.groupnames$logratio <- gsub('Inf', '4', sig.groupnames$logratio)
+    sig.groupnames$logratio <- gsub('Inf', '5', sig.groupnames$logratio)
     sig.groupnames$logratio <- as.numeric(sig.groupnames$logratio)
     
     
