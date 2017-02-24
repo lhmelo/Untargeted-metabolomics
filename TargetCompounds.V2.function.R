@@ -106,25 +106,25 @@ mfmatch <- function(PPM = 5, RTRange = 0.2){
       & DF.Y$RT.Y > RT.X[i] - RTRange 
       & DF.Y$RT.Y < RT.X[i] + RTRange, ]
     
-    if (nrow(MFmatch[[i]]) > 0) {
-      MFmatch[[i]] <- 
-        rbind(MFmatch[[i]], 
-              DF.Y[DF.Y$mz.Y > (mz.X[i] - 
-                                  (PPM/1e6*mz.X[i])) 
-                   & DF.Y$mz.Y < (mz.X[i] + 
-                                    (PPM/1e6*mz.X[i])) 
-                   & is.na(DF.Y$RT.Y), ])
+   # if (nrow(MFmatch[[i]]) > 0) {
+    #  MFmatch[[i]] <- 
+   #     rbind(MFmatch[[i]], 
+   #           DF.Y[DF.Y$mz.Y > (mz.X[i] - 
+   #                               (PPM/1e6*mz.X[i])) 
+   #                & DF.Y$mz.Y < (mz.X[i] + 
+   #                                 (PPM/1e6*mz.X[i])) 
+  #                 & is.na(DF.Y$RT.Y), ])
       
       
-    } else {
-      MFmatch[[i]] <- 
-        DF.Y[DF.Y$mz.Y > (mz.X[i] - 
-                            (PPM/1e6*mz.X[i])) 
-             & DF.Y$mz.Y < (mz.X[i] + 
-                              (PPM/1e6*mz.X[i])) 
-             & is.na(DF.Y$RT.Y), ]
+   # } else {
+   #   MFmatch[[i]] <- 
+   #     DF.Y[DF.Y$mz.Y > (mz.X[i] - 
+    #                        (PPM/1e6*mz.X[i])) 
+    #         & DF.Y$mz.Y < (mz.X[i] + 
+    #                          (PPM/1e6*mz.X[i])) 
+    #         & is.na(DF.Y$RT.Y), ]
       
-    }
+   # }
     Matched.X[i] <- as.numeric(nrow(MFmatch[[i]]))            
   }
   
