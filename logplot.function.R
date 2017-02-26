@@ -78,6 +78,7 @@ logplot <- function (sigcutoff = 0.05){
     sig.groupnames$logratio <- gsub('Inf', '5', sig.groupnames$logratio)
     sig.groupnames$logratio <- as.numeric(sig.groupnames$logratio)
     
+    write.csv(sig.groupnames, paste(Fraction, "logplotdata", "csv", sep="."))
     
     p <- ggplot(sig.groupnames, aes(x = mz, y = logratio, color = pvalue)) +
       geom_point() +
