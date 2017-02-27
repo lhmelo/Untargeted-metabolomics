@@ -53,7 +53,7 @@ mfmaker_ANOVA <- function(pvalue){
   
   #Get rid of any peaks that are bigger in the blank than in the average pooled sample
   
-  xset.filtered <- subset(Peaks.filtered, (Peaks.filtered$AveBlank) < Peaks.filtered$AvePoo) 
+  xset.filtered <- subset(xset.filtered, xset.filtered$AveBlk < xset.filtered$AvePoo) 
   Treatsdf <- xset.filtered[, c(Treat1,Treat2) ]
   
   #add a Pvalue for between the two treatments for QC
@@ -64,12 +64,11 @@ mfmaker_ANOVA <- function(pvalue){
   write.csv(xset.filtered, file=paste(Fraction, "xset.filtered.csv", sep="."))
   
   #Pull out top 50 most differentially expressed peaks
-  sig.groupnames <-
-    subset(anova.summary, xset.filtered$Pvalue < pvalue)
+  sig.groupnames <- subset(xset.filtered, xset.filtered$pvalue < pvalue)
   
   save(sig.groupnames, file="sig.groupnames.RData")
   
-  bottom.fifty <- top_n(sig.groupnames,-50, Pvalue)
+  bottom.fifty <- top_n(sig.groupnames,-50, pvalue)
   
   #Quality control ---- 
   
