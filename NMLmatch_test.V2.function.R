@@ -44,7 +44,8 @@ mfmatch <- function(PPM = 5, RTRange = 0.2){
     setwd(ResultsDIR)
     NeutralMassList <-
       read.csv(paste(Fraction, "NeutralMassList.csv", sep="."))
-    NML <- NeutralMassList #X
+    NML <- NeutralMassList[!duplicated(NeutralMassList), ]
+     #X
     
     
     setwd(targetcompoundpath)
@@ -71,12 +72,18 @@ mfmatch <- function(PPM = 5, RTRange = 0.2){
  
  Target.Compounds$MassFeature <- paste("I", round((Target.Compounds$mz),digits=4), 
                                        "R", round( Target.Compounds$RT, digits=2), sep="")
+ NML$UniqueMassFeature <- paste("I", round((NML$mz),digits=4), 
+                                "R", round( NML$RT, digits=2), 
+                                "M", round( NML$MassOfM, digits=0), sep="")
  
  
   TC <- Target.Compounds #Y
   
-  DF.TC <- TC[, c("Compound.Name", "Compound.Type", "MassFeature", "mz", "RT")]
-  DF.NML <- NML[, c("MassFeature", "mz", "RT")]
+  #convert mz to neutral mass
+  TC$NM <- TC$mz - 1.007276
+  
+  DF.TC <- TC[, c("Compound.Name", "Compound.Type", "MassFeature", "mz", "NM", "RT")]
+  DF.NML <- NML[, c("MassFeature", "UniqueMassFeature", "mz", "RT", "IonType", "MassOfM")]
   
   DF.TC$MassFeature <- as.character(DF.TC$MassFeature)
   DF.NML$MassFeature <- as.character(DF.NML$MassFeature)
@@ -92,54 +99,40 @@ mfmatch <- function(PPM = 5, RTRange = 0.2){
   MFmatch <- list()
   Matched.NML <- c()
   MFname.NML <- as.character(DF.NML$MassFeature.NML)
-  mz.NML <- DF.NML$mz.NML
-  names(mz.NML) <- DF.NML$MassFeature.NML
+  NM.NML <- DF.NML$NM.NML
+  names(NM.NML) <- DF.NML$UniqueMassFeature.NML
   RT.NML <- DF.NML$RT.NML
-  names(RT.NML) <- DF.NML$MassFeature.NML
+  names(RT.NML) <- DF.NML$UniqueMassFeature.NML
   
   # Checking each row in DF.NML for any matches in DF.Y.  The if statement is dealing with mass features for which RT is unknown.  This is unlikely to apply to my data.
-  for (i in DF.NML$MassFeature.NML){
+  for (i in DF.NML$UniqueMassFeature.NML){
     
     print(i)
     MFmatch[[i]] <- DF.TC[
-      DF.TC$mz.TC > (mz.NML[i] - (PPM/1e6*mz.NML[i])) 
-      & DF.TC$mz.TC < (mz.NML[i] + (PPM/1e6*mz.NML[i])) 
+      DF.TC$NM.TC > (NM.NML[i] - (PPM/1e6*NM.NML[i])) 
+      & DF.TC$NM.TC < (NM.NML[i] + (PPM/1e6*NM.NML[i])) 
       & DF.TC$RT.TC > RT.NML[i] - RTRange 
       & DF.TC$RT.TC < RT.NML[i] + RTRange, ]
     
-   # if (nrow(MFmatch[[i]]) > 0) {
-   #   MFmatch[[i]] <- 
-   #     rbind(MFmatch[[i]], 
-    #          DF.Y[DF.Y$mz.Y > (mz.NML[i] - 
-   #                               (PPM/1e6*mz.NML[i])) 
-   #                & DF.Y$mz.Y < (mz.NML[i] + 
-   #                                 (PPM/1e6*mz.NML[i])) 
-   #                & is.na(DF.Y$RT.Y), ])
-      
-      
-   # } else {
-    #  MFmatch[[i]] <- 
-    #    DF.Y[DF.Y$mz.Y > (mz.NML[i] - 
-   #                         (PPM/1e6*mz.NML[i])) 
-    #         & DF.Y$mz.Y < (mz.NML[i] + 
-    #                          (PPM/1e6*mz.NML[i])) 
-    #         & is.na(DF.Y$RT.Y), ]
-      
-    #}
+  
     Matched.NML[i] <- as.numeric(nrow(MFmatch[[i]]))            
   }
   
   # Making a new data.frame to hold matched mass features
   DF.NML$Compound.Name.NML <- as.character(DF.NML$Compound.Name.NML)
   
-  Matches <- data.frame(Compound.Name.NML = DF.NML$Compound.Name.NML,
-                        Compound.Type = DF.NML$Compound.Type.NML,
-                        MassFeature.NML = DF.NML$MassFeature.NML,
-                        MassFeature.Y = NA, 
-                        mz.NML = DF.NML$mz.NML, 
-                        mz.Y = NA,
+  Matches <- data.frame(Mass.Feature.NML = DF.NML$MassFeature.NML,
+                        UniqueMassFeature.NML = DF.NML$UniqueMassFeature.NML,
+                        mz.NML = DF.NML$mz.NML,
                         RT.NML = DF.NML$RT.NML,
-                        RT.Y = NA,
+                        IonType = DF.NML$IonType.NML,
+                        MassOfM = DF.NML$MassOfM.NML,
+                        Compound.Name.TC = NA,
+                        Compound.Type.TC = NA,
+                        MassFeature.TC = NA,
+                        mz.TC = NA, 
+                        NM.TC = NA,
+                        RT.TC = NA,
                         NumMatched = Matched.NML,
                         ppm = NA, 
                         RTdif = NA)
@@ -155,17 +148,20 @@ mfmatch <- function(PPM = 5, RTRange = 0.2){
     
     for (n in 1:nrow(MFmatch[[i]])){
       MFmatch[[i]]$ppm[n] <- 
-        abs((mz.NML[i] - MFmatch[[i]]$mz.Y[n])/mz.NML[i]*1e6)
+        abs((mz.NML[i] - MFmatch[[i]]$mz.TC[n])/mz.NML[i]*1e6)
       MFmatch[[i]]$RTdif[n] <- 
-        abs(RT.NML[i] - MFmatch[[i]]$RT.Y[n])
+        abs(RT.NML[i] - MFmatch[[i]]$RT.TC[n])
       MFmatch[[i]]$MassFeature.NML <- i
     }
     MFmatch[[i]] <- arrange(MFmatch[[i]], ppm, RTdif)
     
-    Matches[[i]]$MassFeature.Y <- 
-      as.character(MFmatch[[i]]$MassFeature.Y[1])
-    Matches[[i]]$mz.Y <- MFmatch[[i]]$mz.Y[1]
-    Matches[[i]]$RT.Y <- MFmatch[[i]]$RT.Y[1]
+    Matches[[i]]$MassFeature.TC <- 
+      as.character(MFmatch[[i]]$MassFeature.TC[1])
+    Matches[[i]]$Compound.Name.TC <- MFmatch[[i]]$Compound.Name.TC[1]
+    Matches[[i]]$Compound.Type.TC <- MFmatch[[i]]$Compound.Type.TC[1]
+    Matches[[i]]$NM.TC <- MFmatch[[i]]$NM.TC[1]
+    Matches[[i]]$mz.TC <- MFmatch[[i]]$mz.TC[1]
+    Matches[[i]]$RT.TC <- MFmatch[[i]]$RT.TC[1]
     Matches[[i]]$ppm <- MFmatch[[i]]$ppm[1]
     Matches[[i]]$RTdif <- MFmatch[[i]]$RTdif[1]
     
@@ -175,36 +171,35 @@ mfmatch <- function(PPM = 5, RTRange = 0.2){
   Matches <- rbind.fill(Matches)
   
   #Target.Compound.Areas is a df with a list of Target Compounds and corresponding peak areas
-  names(Matches)[names(Matches) == 'MassFeature.Y'] <- 'MassFeature'
+  names(Matches)[names(Matches) == 'MassFeature.TC'] <- 'MassFeature'
   
-  Target.Compound.Areas <-
-    Matches %>% join(NMLset.allpeaks, by = "MassFeature", type = "left")
+ # NML <-
+ #    Matches %>% join(xset.allpeaks, by = "MassFeature", type = "left")
+ #  
   
-  
-  drops <-
-    c(
-      "MassFeature.NML",
-      "mz.NML",
-      "mz.Y",
-      "mzmin",
-      "mzmaNML",
-      "RT.NML",
-      "rtmin",
-      "rtmaNML",
-      "NumMatched",
-      "RT",
-      "rt",
-      "EddyQE_NoBins_NMLCMS"
-    )
-  Target.Compound.Areas <-
-    Target.Compound.Areas[, !(names(Target.Compound.Areas) %in% drops)]
-  
-  names(Target.Compound.Areas)[names(Target.Compound.Areas) == 'RT.Y'] <-
-    'RT'
-  names(Target.Compound.Areas)[names(Target.Compound.Areas) == 'ppm'] <-
-    'ppmdif'
-  
-  TargetCompoundsAreas_condensed <- Target.Compound.Areas[complete.cases(Target.Compound.Areas$mz),]
+  # drops <-
+  #   c(
+  #     "MassFeature.NML",
+  #     "mz.NML",
+  #     "mz.TC",
+  #     "mzmin",
+  #     "mzmaNML",
+  #     "RT.NML",
+  #     "rtmin",
+  #     "rtmaNML",
+  #     "NumMatched",
+  #     "RT",
+  #     "rt"
+  #   )
+  # Target.Compound.Areas <-
+  #   Target.Compound.Areas[, !(names(Target.Compound.Areas) %in% drops)]
+  # 
+  # names(Target.Compound.Areas)[names(Target.Compound.Areas) == 'RT.TC'] <-
+  #   'RT'
+  # names(Target.Compound.Areas)[names(Target.Compound.Areas) == 'ppm'] <-
+  #   'ppmdif'
+  # 
+  # TargetCompoundsAreas_condensed <- Target.Compound.Areas[complete.cases(Target.Compound.Areas$mz),]
   
   #return(Matches)
   
@@ -213,10 +208,10 @@ mfmatch <- function(PPM = 5, RTRange = 0.2){
  #return(invisible(TCList))
 setwd(ResultsDIR) 
 write.csv(Matches, paste(Fraction, "Matches.csv", sep="."), row.names = FALSE) 
-write.csv(Target.Compounds, paste(Fraction, "TargetCompounds.csv", sep="."), row.names = FALSE)  
-write.csv(Target.Compound.Areas, paste(Fraction, "TargetCompoundAreas.csv", sep="."), row.names=FALSE)  
+# write.csv(Target.Compounds, paste(Fraction, "TargetCompounds.csv", sep="."), row.names = FALSE)  
+# write.csv(Target.Compound.Areas, paste(Fraction, "TargetCompoundAreas.csv", sep="."), row.names=FALSE)  
 
-write.csv(TargetCompoundsAreas_condensed, paste(Fraction, "TargetCompoundAreasCondensed.csv", sep="."), row.names=FALSE)
+write.csv(TargetCompoundsAreas_condensed, paste(Fraction, "DereplicatedNML.csv", sep="."), row.names=FALSE)
  
   }
 }
