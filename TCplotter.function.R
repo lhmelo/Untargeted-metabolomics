@@ -214,7 +214,7 @@ tcplotter <- function(PPM = 5, RTRange = 0.2){
   
   setwd(functionDIR)
   source("EICPlots_2Groups_ISplotter.function.R")
-  eicplotter(MFs_alldata, Fraction, 5)
+  eicplotter(MFs_alldata, MFtype = "TC", Fraction, 5)
  
   }
 }
