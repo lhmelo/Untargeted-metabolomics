@@ -6,6 +6,10 @@
 #       1. MassFeature
 #       2. mz
 #       3. RT
+#       4. log2ratio
+#       5. AveTreat2
+#       6. pvalue
+#       7. groupname
 
 # Output is a data.frame of all mass features which match and what the m/z and RT differences are. The suffixes
 # on the columns should make it clear which values came from which of the 
@@ -18,8 +22,8 @@ mfmatch <- function(X, Y, PPM = 5, RTRange = 0.2){
   require(plyr)
   require(stringr)
   
-  DF.X <- X[, c("MassFeature", "logratio", "mz", "RT", "AveTreat2", "pvalue", "groupname")]
-  DF.Y <- Y[, c("MassFeature", "logratio", "mz", "RT", "AveTreat2", "pvalue", "groupname")]
+  DF.X <- X[, c("MassFeature", "log2ratio", "mz", "RT", "AveTreat2", "pvalue", "groupname")]
+  DF.Y <- Y[, c("MassFeature", "log2ratio", "mz", "RT", "AveTreat2", "pvalue", "groupname")]
   
   DF.Y$MassFeature <- as.character(DF.Y$MassFeature)
   DF.X$MassFeature <- as.character(DF.X$MassFeature)
@@ -61,8 +65,8 @@ mfmatch <- function(X, Y, PPM = 5, RTRange = 0.2){
                         RT.Y = NA,
                         AveTreat2.X = DF.X$AveTreat2.X,
                         AveTreat2.Y = NA,
-                        logratio.X = DF.X$logratio.X,
-                        logratio.Y = NA,
+                        log2ratio.X = DF.X$log2ratio.X,
+                        log2ratio.Y = NA,
                         pvalue.X = DF.X$pvalue.X,
                         pvalue.Y = NA,
                         NumMatched = Matched.X,
@@ -95,7 +99,7 @@ mfmatch <- function(X, Y, PPM = 5, RTRange = 0.2){
     Matches[[i]]$ppm <- MFmatch[[i]]$ppm[1]
     Matches[[i]]$RTdif <- MFmatch[[i]]$RTdif[1]
     Matches[[i]]$AveTreat2.Y <- MFmatch[[i]]$AveTreat2.Y[1]
-    Matches[[i]]$logratio.Y <- MFmatch[[i]]$logratio.Y[1]
+    Matches[[i]]$log2ratio.Y <- MFmatch[[i]]$log2ratio.Y[1]
     Matches[[i]]$pvalue.Y <- MFmatch[[i]]$pvalue.Y[1]
     Matches[[i]]$groupname.Y <- MFmatch[[i]]$groupname.Y[1]
     
