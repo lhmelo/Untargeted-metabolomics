@@ -15,13 +15,13 @@ eicplotter <- function(MFs_alldata, MFtype, Fraction, PPM=5){
   
   library(xcms)
   library(seqinr)
-  
+  print("eicplotter starting")
     #Fraction <- FractionList[j]
     print(Fraction)
     DataDIR <- as.character(Dirs[Fraction, "DataDIR"])
     ResultsDIR <- as.character(Dirs[Fraction, "ResultsDIR"])
     
-    #load in data
+    
     setwd(ResultsDIR)
     
     xset.filtered <- read.csv(paste(Fraction, "xset.filtered.csv", sep="."))
