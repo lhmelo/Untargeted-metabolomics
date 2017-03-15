@@ -6,6 +6,9 @@
 #       1. MassFeature
 #       2. mz
 #       3. RT
+#       4. log2ratio
+#       5. AveTreat2
+#       6. pvalue
 
 # Output is a data.frame of all mass features which match and what the m/z and RT differences are. The suffixes
 # on the columns should make it clear which values came from which of the 
@@ -30,7 +33,7 @@ mfNMLmatch <- function(X, PPM = 5, RTRange = 0.2){
                                  "R", round( Y$RT, digits=2), 
                                  "M", round( Y$MassOfM, digits=0), sep="")
   
-  DF.X <- X[, c("MassFeature.X", "logratio.X", "mz.X", "RT.X", "AveTreat2.X", "pvalue.X")]
+  DF.X <- X[, c("MassFeature.X", "log2ratio.X", "mz.X", "RT.X", "AveTreat2.X", "pvalue.X")]
   DF.Y <- Y[, c("MassFeature", "UniqueMassFeature", "mz", "RT", "IonType", "pcgroup", "MassOfM")]
   
   DF.Y$MassFeature <- as.character(DF.Y$MassFeature)
@@ -79,7 +82,7 @@ mfNMLmatch <- function(X, PPM = 5, RTRange = 0.2){
                         RT.X = DF.X$RT.X,
                         pcgroup.Y = NA,
                         AveTreat2.X = DF.X$AveTreat2.X,
-                        logratio.X = DF.X$logratio.X,
+                        log2ratio.X = DF.X$log2ratio.X,
                         pvalue.X = DF.X$pvalue.X,
                         NumMatched = Matched.X,
                         ppm = NA, 
