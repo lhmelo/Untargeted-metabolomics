@@ -14,7 +14,7 @@
 # 2. a subset of allpeaks which ANOVA determines are significant at a level determined by  pvalue (sig.groupnames)
 # 3. the fifty most significant peaks from sig.groupnames, to be plotted in QC step (bottom.fifty)
 # 4. xset.filtered
-
+library(tidyverse)
 
 mfmaker_ttest <- function(pvalue){
   
@@ -30,19 +30,33 @@ mfmaker_ttest <- function(pvalue){
     names <- colnames(xset.allpeaks)
  #Specify blanks, samples and pooled samples.
   Samples <-names[grepl("Smp", names)]
-  Blk2 <- names[grepl("Blk_2", names)]
-  Blk1 <- names[grepl("Blk_1", names)]
+  
+  Blk2 <- names[grepl("_Blk_2", names)]
+  Blk1 <- names[grepl("_Blk_1", names)]
   ProcessBlk <- names[grepl("ProcessBlk", names)]
   
   Pellets <- Samples[grepl(as.character(Treat1ID), Samples)]
   Vesicles <- Samples[grepl(as.character(Treat2ID), Samples)]
   
   #calculate averages for each group
-  xset.allpeaks$AvePellets <- rowMeans(xset.allpeaks[, Pellets])
-  xset.allpeaks$AveVesicles <- rowMeans(xset.allpeaks[, Vesicles])
-  xset.allpeaks$AveBlk1 <- rowMeans(xset.allpeaks[, Blk1])
-  xset.allpeaks$AveBlk2 <- rowMeans(xset.allpeaks[, Blk2])
-  xset.allpeaks$AveProcessBlk <- rowMeans(xset.allpeaks[, ProcessBlk])
+  # xset.allpeaks$AvePellets <- rowMeans(xset.allpeaks[, Pellets])
+  # xset.allpeaks$AveVesicles <- rowMeans(xset.allpeaks[, Vesicles])
+  # xset.allpeaks$AveBlk1 <- rowMeans(xset.allpeaks[, Blk1])
+  # xset.allpeaks$AveBlk2 <- rowMeans(xset.allpeaks[, Blk2])
+  # xset.allpeaks$AveProcessBlk <- rowMeans(xset.allpeaks[, ProcessBlk])
+  
+  xset.allpeaks <- xset.allpeaks %>% 
+    mutate(AvePellets = rowMeans(xset.allpeaks[, Pellets])) %>%
+    mutate(AveVesicles = rowMeans(xset.allpeaks[, Vesicles])) %>%
+    mutate(AveBlk1 = rowMeans(xset.allpeaks[, Blk1])) %>%
+    mutate(AveBlk2 = rowMeans(xset.allpeaks[, Blk2])) %>%
+    mutate(AveProcessBlk = rowMeans(xset.allpeaks[, ProcessBlk])) %>%
+    mutate(Pellets.sd = apply(xset.allpeaks[, Pellets], 1, sd)) %>%
+    mutate(Vesicles.sd = apply(xset.allpeaks[, Vesicles], 1, sd)) %>%
+    mutate(Blk1.sd = apply(xset.allpeaks[, Blk1], 1, sd)) %>%
+    mutate(Blk2.sd = apply(xset.allpeaks[, Blk2], 1, sd)) %>%
+    mutate(ProcessBlk.sd = apply(xset.allpeaks[, ProcessBlk], 1, sd))
+
   
   #Specify treatment groups within samples
 
@@ -82,13 +96,13 @@ mfmaker_ttest <- function(pvalue){
     xset.filtered,
     ((xset.filtered$AveBlk1 * 2) < xset.filtered$AveVesicles &
        (xset.filtered$AveBlk2 * 2) < xset.filtered$AveVesicles &
-      xset.filtered$AveProcessBlk <= xset.filtered$AvePellet &
-         xset.filtered$AveBlk2 <= xset.filtered$AvePellet) | 
+      (xset.filtered$AveProcessBlk - xset.filtered$ProcessBlk.sd) < (xset.filtered$AvePellet + xset.filtered$Pellets.sd) &
+         (xset.filtered$AveBlk2  - xset.filtered$Blk2.sd) < (xset.filtered$AvePellet + xset.filtered$Pellets.sd)) | 
   
   ((xset.filtered$AveProcessBlk * 2) < xset.filtered$AvePellet &
     (xset.filtered$AveBlk2 * 2) < xset.filtered$AvePellet &
-    xset.filtered$AveBlk1 <= xset.filtered$AveVesicles &
-    xset.filtered$AveBlk2 <= xset.filtered$AveVesicles)
+    (xset.filtered$AveBlk1 - xset.filtered$Blk1.sd) < (xset.filtered$AveVesicles + xset.filtered$Vesicles.sd) &
+    (xset.filtered$AveBlk2  - xset.filtered$Blk2.sd) < (xset.filtered$AveVesicles + xset.filtered$Vesicles.sd))
   
   )
   
