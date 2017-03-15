@@ -214,7 +214,9 @@ isplotter <- function(PPM = 5, RTRange = 0.2){
   
   setwd(functionDIR)
   source("EICPlots_2Groups_ISplotter.function.R")
-  eicplotter(MFs_alldata, Fraction, 5)
+  
+  print("Launching eicplotter")
+  eicplotter(MFs_alldata, MFtype = "IS", Fraction = Fraction, PPM = 5)
  
   }
 }
