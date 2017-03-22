@@ -11,9 +11,9 @@
 #Outputs:
 #1. a pdf file containing raw and corrected EICs for mass features designated in list, MF.
 
-MFs<- MFs_9312high_short 
-Fraction <- "CyanoDCM"
-PDF_Title<- "MFs_9312_75MostDifferent_tiled"
+#MFs<- MFs_9312high_short 
+#Fraction <- "CyanoDCM"
+#PDF_Title<- "MFs_9312_75MostDifferent_tiled"
 
 eicplotter <- function(MFs, Fraction, PDF_Title, PPM=5){
   
