@@ -28,19 +28,38 @@ mfmaker_ttest <- function(pvalue){
     names <- colnames(xset.allpeaks)
  #Specify blanks, samples and pooled samples.
   Samples <-names[grepl("Smp", names)]
-  Blanks <- names[grepl("Blk", names)]
+  Blk2 <- names[grepl("Blk_2", names)]
+  Blk1 <- names[grepl("Blk_1", names)]
   Pooled <- names[grepl("Poo", names)]
   
-  #calculate averages for each group
-  xset.allpeaks$AveSmp<- rowMeans(xset.allpeaks[, Samples])
-  xset.allpeaks$AveBlk<- rowMeans(xset.allpeaks[, Blanks])
-  xset.allpeaks$AvePoo<- rowMeans(xset.allpeaks[, Pooled])
-  
-  #Specify treatment groups within samples
   
   Treat1 <- Samples[grepl(as.character(Treat1ID), Samples)]
   Treat2 <- Samples[grepl(as.character(Treat2ID), Samples)]
-    
+  
+  # RowVar <- function(x) {
+  #   rowSums((x - rowMeans(x))^2)/(dim(x)[2] - 1)
+  # }
+  
+  #calculate averages for each group
+  xset.allpeaks <- xset.allpeaks %>% 
+    mutate(AveTreat1 = rowMeans(xset.allpeaks[, Treat1])) %>%
+    mutate(AveTreat2 = rowMeans(xset.allpeaks[, Treat2])) %>%
+    mutate(AveBlk1 = rowMeans(xset.allpeaks[, Blk1])) %>%
+    mutate(AveBlk2 = rowMeans(xset.allpeaks[, Blk2])) %>%
+    mutate(Treat1.sd = apply(xset.allpeaks[, Treat1], 1, sd)) %>%
+    mutate(Treat2.sd = apply(xset.allpeaks[, Treat2], 1, sd)) %>%
+    mutate(Treat1.sd.per = (Treat1.sd/AveTreat1)*100) %>%
+    mutate(Treat2.sd.per = (Treat2.sd/AveTreat2)*100) %>%
+    mutate(Blk1.sd = apply(xset.allpeaks[, Blk1], 1, sd)) %>%
+    mutate(Blk2.sd = apply(xset.allpeaks[, Blk2], 1, sd)) %>%
+    mutate(var.Treat1.raw = apply(xset.allpeaks[, Treat1], 1, var)) %>%
+    mutate(var.Treat2.raw = apply(xset.allpeaks[, Treat2], 1, var)) 
+  # %>%
+  #   mutate(var.Treat2.raw.2 = RowVar(xset.allpeaks[, Treat2]))
+  
+  
+  #Specify treatment groups within samples
+  
  
   #setwd(outputpath)
   #save(xset.allpeaks, file=paste(extractiontype, "xset.allpeaks.RData", sep="."))
@@ -53,7 +72,22 @@ mfmaker_ttest <- function(pvalue){
   
   #Get rid of any peaks that are bigger in the blank than in the average pooled sample
   
-  xset.filtered <- subset(xset.filtered, xset.filtered$AveBlk < xset.filtered$AvePoo) 
+  xset.filtered <- subset(
+    xset.filtered,
+    ((xset.filtered$AveBlk1 * 2) < xset.filtered$AveTreat1 &
+       (xset.filtered$AveBlk2 * 2) < xset.filtered$AveTreat1 &
+       (xset.filtered$AveBlk1 - xset.filtered$Blk1.sd) < (xset.filtered$AveTreat2 + xset.filtered$Treat2.sd) &
+       (xset.filtered$AveBlk2  - xset.filtered$Blk2.sd) < (xset.filtered$AveTreat2 + xset.filtered$Treat2.sd)) | 
+      
+      ((xset.filtered$AveBlk1 * 2) < xset.filtered$AveTreat2 &
+         (xset.filtered$AveBlk2 * 2) < xset.filtered$AveTreat2 &
+         (xset.filtered$AveBlk1 - xset.filtered$Blk1.sd) < (xset.filtered$AveTreat1 + xset.filtered$Treat1.sd) &
+         (xset.filtered$AveBlk2  - xset.filtered$Blk2.sd) < (xset.filtered$AveTreat1 + xset.filtered$Treat1.sd))
+    
+  )
+  
+  
+  # xset.filtered <- subset(xset.filtered, xset.filtered$AveBlk < xset.filtered$AvePoo) 
   Treatsdf <- xset.filtered[, c(Treat1,Treat2) ]
   
   #add a Pvalue for between the two treatments for QC
