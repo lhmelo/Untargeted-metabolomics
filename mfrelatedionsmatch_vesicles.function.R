@@ -88,7 +88,7 @@ mfRImatch <- function(X, PPM = 5, RTRange = 0.2){
                         UniqueMassFeature.Y = NA,
                         IonType.Y = NA,
                         MassOfM.Y = NA,
-                        mzofI.Y = NA,
+                        mzOfI.Y = NA,
                         mz.X = DF.X$mz.X, 
                         mz.Y = NA,
                         RT.X = DF.X$RT.X,
@@ -129,7 +129,7 @@ mfRImatch <- function(X, PPM = 5, RTRange = 0.2){
     Matches[[i]]$RTdif <- MFmatch[[i]]$RTdif[1]
     Matches[[i]]$IonType.Y <- MFmatch[[i]]$IonType.Y[1]
     Matches[[i]]$MassOfM.Y <- MFmatch[[i]]$MassOfM.Y[1]
-    Matches[[i]]$mzOfM.Y <- MFmatch[[i]]$mzOfM.Y[1]
+    Matches[[i]]$mzOfI.Y <- MFmatch[[i]]$mzOfI.Y[1]
     
   }
   
