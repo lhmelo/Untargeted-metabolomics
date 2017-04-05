@@ -1,20 +1,20 @@
-# mfmatch function --------------------------------------------------
+# mfmatch_AbEn function --------------------------------------------------
 
 # This function will take two data.frames, X and Y, and output a data.frame  
 # listing which mass features match which in the other dataset. Data.frames 
-# must include the following columns:
-#       1. MassFeature
-#       2. mz
-#       3. RT
+#  X should contain the Most Abundant Ions and RIs in vesicles, which is output from mfRImatch() (mfrelatedionsmatch_vesicles.function.R).  Data.frame Y is one of the logplot tables which are output from logplot.function.R.  Data.frames must contain columns listed in lines .. and .. below.  
 
 # Output is a data.frame of all mass features which match and what the m/z and RT differences are. The suffixes
 # on the columns should make it clear which values came from which of the 
 # original data.frames.
  
-# If one of the datasets is much longer than the other, make the shorter one X. It will go faster.
+# .X columns originate from xsets processed with both strains' vesicle data, whereas .Y columns originate from xsets processed with cell pellet and vesicle data.  MassFeatures and RTs may be slightly different due to slight RT corrections between the two groups.  
+# 
+# log2ratio and pvalue in final table refer to comparisons between cell pellets and vesicles.  Vesicles are Treat2.
 
 
-mfmatch <- function(X, Y, PPM = 5, RTRange = 0.2){
+
+mfmatch_AbEn <- function(X, Y, PPM = 5, RTRange = 0.2){
   require(plyr)
   require(stringr)
   
