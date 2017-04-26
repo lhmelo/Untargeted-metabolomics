@@ -1,0 +1,38 @@
+---
+title: "BuildingTargetCompoundWishList"
+date: April 26, 2017
+---
+
+```{r setup, include=FALSE}
+library(Rdisop)
+```
+
+
+```{r }
+
+datapath <- "~/Desktop/MetabolomicsProjects/Rscripts/data"
+setwd(datapath)
+data <- read.csv("TargetCompoundWishList.csv")
+```
+
+```{r}
+
+data$Emperical.Formula <- as.character(data$Emperical.Formula)
+
+for (i in 1:length(data$Emperical.Formula)) {
+  
+  if (data$Emperical.Formula[i]=="") {
+    
+    data$exact.mass[i] <- data$mass[i]
+    
+    next
+  } 
+  
+  molecule <- getMolecule(data$Emperical.Formula[i])
+  
+  data$exact.mass[i]<- getMass(molecule)
+}
+
+write.csv(data, "TargetCompoundWishList.csv", row.names = FALSE)
+```
+
