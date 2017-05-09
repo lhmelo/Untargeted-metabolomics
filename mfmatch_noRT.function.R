@@ -107,7 +107,7 @@ names(DF.Y) <- paste(names(DF.Y), "Y", sep = ".")
   
   Matches <- arrange(Matches, mz.X)
   
- # Matches <- Matches[complete.cases(Matches$mz.Y),]
+  Matches <- Matches[complete.cases(Matches$mz.Y),]
   # 
   # names(Matches)
   # 
