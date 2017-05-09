@@ -44,7 +44,7 @@ mfRImatch <- function(X, PPM = 5, RTRange = 0.2){
   Y <- rbind(Y_NM, Y_Iso)
   
   
-  DF.X <- X[, c("MassFeature", "log2ratio", "mz", "RT", "AveTreat2", "pvalue")]
+  DF.X <- X[, c("MassFeature", "PooPlusModel.IS", "log2ratio", "mz", "RT", "AveTreat1", "AveTreat2", "Treat1.sd.vesnorm.per", "Treat2.sd.vesnorm.per", "pvalue")]
   DF.Y <- Y[, c("MassFeature", "UniqueMassFeature", "mz", "RT", "IonType", "pcgroup", "MassOfM", "IsoGroup", "mzOfI")]
   
   DF.Y$MassFeature <- as.character(DF.Y$MassFeature)
@@ -89,12 +89,16 @@ mfRImatch <- function(X, PPM = 5, RTRange = 0.2){
                         IonType.Y = NA,
                         MassOfM.Y = NA,
                         mzOfI.Y = NA,
+                        PooPlusModel.IS.X = DF.X$PooPlusModel.IS.X,
                         mz.X = DF.X$mz.X, 
                         mz.Y = NA,
                         RT.X = DF.X$RT.X,
                         pcgroup.Y = NA,
                         IsoGroup.Y = NA,
+                        AveTreat1.X = DF.X$AveTreat1.X,
                         AveTreat2.X = DF.X$AveTreat2.X,
+                        Treat1.sd.vesnorm.per.X = DF.X$Treat1.sd.vesnorm.per.X,
+                        Treat2.sd.vesnorm.per.X = DF.X$Treat2.sd.vesnorm.per.X,
                         log2ratio.X = DF.X$log2ratio.X,
                         pvalue.X = DF.X$pvalue.X,
                         NumMatched = Matched.X,
