@@ -32,7 +32,7 @@ eicplotter <- function(MFs, Fraction, PDF_Title, PPM=5){
     load(paste(Fraction, "xset3.RData", sep="."))
 
     #MFs <- MFs[,2]
-    MFs <- as.character(MFs) 
+    MFs <- as.character(MFs[,1]) 
     
     setwd(DataDIR)
     AllFiles <- list.files( DataDIR, pattern=".mzXML", full.names=F, 
