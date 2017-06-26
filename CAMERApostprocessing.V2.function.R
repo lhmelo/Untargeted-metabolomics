@@ -32,7 +32,8 @@
 #             g. the m/z of the other, potentially related ion (MassOfM), 
 #             h. and a group number where other ions with the same number
 #             are potentially isotopes of this one (IsoGroup). 
-
+library(stringr)
+library(plyr)
   
   camerapostprocess <- function() {
     
