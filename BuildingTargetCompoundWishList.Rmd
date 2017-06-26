@@ -33,6 +33,8 @@ for (i in 1:length(data$Emperical.Formula)) {
   data$exact.mass[i]<- getMass(molecule)
 }
 
+setwd(datapath)
+
 write.csv(data, "TargetCompoundWishList.csv", row.names = FALSE)
 ```
 
