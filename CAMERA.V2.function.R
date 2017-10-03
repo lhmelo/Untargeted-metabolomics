@@ -31,7 +31,7 @@ library(snow)
                              ifelse(Params["POLARITY", Fraction]==3, "positive",
                                     ifelse(Params["POLARITY", Fraction]==4, "negative", NA))))
   
-xsa <- xsAnnotate(xset3)
+xsa <- xsAnnotate(xset3, nSlaves = 4)
 print("xsAnnotate object created")
 
 xsaF <- groupFWHM(xsa, perfwhm = 0.6)
