@@ -34,6 +34,7 @@ library(ggplot2)
 library(stringr)
 require(reshape2)
 require(dplyr)
+library(IPO)
   
   for (j in 1:length(FractionList)){
     Fraction <- FractionList[j]
@@ -81,7 +82,7 @@ save(xset, file=paste(Fraction, "xset.RData", sep="."))
 
 print(paste(Fraction,"Initial peak alignment complete", sep=" "))
 
-# RT correction and grouping (of some iterations) -------------------------------------------------------
+# RT correction and grouping (of some iterations) -------
 for (k in 1:Params["RTITs", Fraction]){
 
 xset2 <- retcor(
@@ -125,9 +126,21 @@ xset3 <- fillPeaks(xset)
 setwd(ResultsDIR)
 save(xset3, file=paste(Fraction, "xset3.RData", sep="."))
 
+#xset3 is the input file for CAMERA or diffreport. 
+
 print(paste(Fraction, "recursive peak filling is done", sep=" "))
 
-#xset3 is the input file for CAMERA or diffreport. 
+#Calculate Peak Picking Score----
+
+setwd(ResultsDIR)
+PPS <- as.data.frame(calcPPS(xset3))
+write.csv(PPS, "PPS_results.csv")
+
+#RT Correction plot----
+png("RTCorrplot.png", width = 4, height = 5, units = "in", res = 300) 
+plotrt(xset2, leg = F, densplit = T)
+dev.off() 
+save(xset2,  file="xset2_RTCorrected.RData")
 
 # Generate a data.frame with all the peaks----
 
